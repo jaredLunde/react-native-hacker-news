@@ -1,42 +1,87 @@
+import "react-native-url-polyfill/auto";
+import { NavigationContainer } from "@react-navigation/native";
+import type { NativeStackHeaderProps } from "@react-navigation/native-stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { registerRootComponent } from "expo";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
-import { SafeAreaView, Text, View } from "react-native";
-import { DashProvider, styled } from "@/dash";
+import { useColorScheme } from "react-native";
+import logo from "@/assets/logo.png";
+import { Image, SafeAreaView, Text, View } from "@/components/primitives";
+import { DashProvider, responsiveSize } from "@/dash";
+import { Home } from "@/screens/home";
 
 registerRootComponent(App);
 
-function App() {
-  return (
-    <DashProvider>
-      <StyledSafeAreaView>
-        <StyledText>Hacker news</StyledText>
+const Stack = createNativeStackNavigator();
 
-        <StyledView
-          style={(t) => ({
-            margin: 60,
-            width: 200,
-            height: 100,
-            borderRadius: t.radius["xl"],
-            backgroundColor: t.color.white,
-            ...t.shadow["md"],
-          })}
-        />
-        <StatusBar style="auto" />
-      </StyledSafeAreaView>
+function App() {
+  const colorScheme = useColorScheme();
+  return (
+    <DashProvider theme={colorScheme || "light"}>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            header: Header,
+          }}
+        >
+          <Stack.Screen name="Home" component={Home} />
+        </Stack.Navigator>
+      </NavigationContainer>
     </DashProvider>
   );
 }
 
-const StyledSafeAreaView = styled(SafeAreaView, (t) => ({
-  flex: 1,
-  backgroundColor: t.color.bodyBg,
-}));
-const StyledView = styled(View);
+function Header(props: NativeStackHeaderProps) {
+  const colorScheme = useColorScheme();
 
-const StyledText = styled(Text, (t) => ({
-  color: t.color.primaryText,
-  fontSize: t.type.size["4xl"],
-  fontWeight: "900",
-  letterSpacing: t.type.tracking.tighter,
-}));
+  return (
+    <SafeAreaView
+      style={(t) => ({
+        backgroundColor: t.color.headerBg,
+      })}
+    >
+      <StatusBar
+        style={
+          colorScheme === "light"
+            ? "dark"
+            : colorScheme === "dark"
+            ? "light"
+            : "auto"
+        }
+      />
+      <View
+        style={(t) => ({
+          flexDirection: "row",
+          flexWrap: "nowrap",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          width: "100%",
+          paddingTop: t.space.sm,
+          paddingBottom: t.space.md,
+          paddingRight: t.space.lg,
+          paddingLeft: t.space.lg,
+        })}
+      >
+        <Image
+          source={logo}
+          style={(t) => ({
+            width: responsiveSize(20),
+            height: responsiveSize(20),
+            borderRadius: t.radius.md,
+            marginRight: t.space.md,
+          })}
+        />
+        <Text
+          style={(t) => ({
+            fontSize: t.type.size.lg,
+            color: t.color.primaryText,
+            fontWeight: "900",
+          })}
+        >
+          HN
+        </Text>
+      </View>
+    </SafeAreaView>
+  );
+}

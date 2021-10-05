@@ -2,6 +2,8 @@
 
 > A Hacker News app written in react-native and [Dash](https://github.com/dash-ui/react-native)
 
+![light mode](.readme/light-mode.png) ![dark mode](.readme/dark-mode.png)
+
 ## Getting started
 
 ```sh

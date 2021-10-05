@@ -253,7 +253,8 @@ export const colorSystem = {
 
 export const typeSystem = {
   size: {
-    xs: responsiveSize(0.8 * 16),
+    "2xs": responsiveSize(0.67 * 16),
+    xs: responsiveSize(0.75 * 16),
     sm: responsiveSize(0.875 * 16),
     base: responsiveSize(16),
     lg: responsiveSize(1.125 * 16),
@@ -335,27 +336,27 @@ export function responsiveSize(fontSize: number, standardScreenHeight = 680) {
 
 export const spaceScale = {
   hairline: RN.StyleSheet.hairlineWidth,
-  "2xs": 1,
-  xs: 2,
-  sm: 4,
-  md: 4,
-  lg: 8,
-  xl: 16,
-  "2xl": 32,
-  "3xl": 64,
-  "4xl": 128,
+  "2xs": responsiveSize(1),
+  xs: responsiveSize(2),
+  sm: responsiveSize(4),
+  md: responsiveSize(8),
+  lg: responsiveSize(16),
+  xl: responsiveSize(32),
+  "2xl": responsiveSize(64),
+  "3xl": responsiveSize(128),
+  "4xl": responsiveSize(256),
 } as const;
 
 export const radiusScale = {
-  none: 0,
-  primary: 10000 / 16,
-  secondary: 16,
-  sm: 0.125 * 16,
-  base: 0.25 * 16,
-  md: 0.375 * 16,
-  lg: 0.5 * 16,
-  xl: 16,
-  full: 10000 / 16 + "rem",
+  none: responsiveSize(0),
+  primary: responsiveSize(10000 / 16),
+  secondary: responsiveSize(16),
+  sm: responsiveSize(0.125 * 16),
+  base: responsiveSize(0.25 * 16),
+  md: responsiveSize(0.375 * 16),
+  lg: responsiveSize(0.5 * 16),
+  xl: responsiveSize(16),
+  full: responsiveSize(10000 / 16),
 } as const;
 
 export const zScale = {
@@ -390,74 +391,74 @@ export function createShadowScale(
     none: {
       shadowColor,
       shadowOffset: {
-        width: 0,
-        height: 0,
+        width: responsiveSize(0),
+        height: responsiveSize(0),
       },
       shadowOpacity: 0,
-      shadowRadius: 0,
+      shadowRadius: responsiveSize(0),
     },
     primary: {
       shadowColor,
       shadowOffset: {
-        width: 0,
-        height: 0,
+        width: responsiveSize(0),
+        height: responsiveSize(0),
       },
       shadowOpacity: 0.2,
-      shadowRadius: 12,
+      shadowRadius: responsiveSize(12),
     },
     xs: {
       shadowColor,
       shadowOffset: {
-        width: 0,
-        height: 0,
+        width: responsiveSize(0),
+        height: responsiveSize(0),
       },
       shadowOpacity: 0.5,
-      shadowRadius: 1,
+      shadowRadius: responsiveSize(1),
     },
     sm: {
       shadowColor,
       shadowOffset: {
-        width: 0,
-        height: 1,
+        width: responsiveSize(0),
+        height: responsiveSize(1),
       },
       shadowOpacity: 0.2,
-      shadowRadius: 2,
+      shadowRadius: responsiveSize(2),
     },
     md: {
       shadowColor,
       shadowOffset: {
-        width: 0,
-        height: 2,
+        width: responsiveSize(0),
+        height: responsiveSize(2),
       },
       shadowOpacity: 0.2,
-      shadowRadius: 6,
+      shadowRadius: responsiveSize(6),
     },
     lg: {
       shadowColor,
       shadowOffset: {
-        width: 0,
-        height: 2,
+        width: responsiveSize(0),
+        height: responsiveSize(2),
       },
       shadowOpacity: 0.2,
-      shadowRadius: 15,
+      shadowRadius: responsiveSize(15),
     },
     xl: {
       shadowColor,
       shadowOffset: {
-        width: 0,
-        height: 10,
+        width: responsiveSize(0),
+        height: responsiveSize(10),
       },
       shadowOpacity: 0.2,
-      shadowRadius: 25,
+      shadowRadius: responsiveSize(25),
     },
     "2xl": {
       shadowColor,
       shadowOffset: {
-        width: 0,
-        height: 25,
+        width: responsiveSize(0),
+        height: responsiveSize(25),
       },
       shadowOpacity: 0.2,
-      shadowRadius: 50,
+      shadowRadius: responsiveSize(50),
     },
   };
 }
@@ -476,7 +477,10 @@ const themes: Record<
   {
     color: {
       primaryText: RN.ColorValue;
+      accentText: RN.ColorValue;
       bodyBg: RN.ColorValue;
+      headerBg: RN.ColorValue;
+      accent: RN.ColorValue;
     };
     shadow: ReturnType<typeof createShadowScale>;
   }
@@ -484,7 +488,10 @@ const themes: Record<
   light: {
     color: {
       primaryText: colorSystem.black,
+      accentText: colorSystem.gray500,
       bodyBg: colorSystem.white,
+      headerBg: colorSystem.amber100,
+      accent: colorSystem.warmGray300,
     },
 
     shadow: createShadowScale(),
@@ -492,7 +499,10 @@ const themes: Record<
   dark: {
     color: {
       primaryText: colorSystem.white,
+      accentText: colorSystem.gray300,
       bodyBg: colorSystem.black,
+      headerBg: colorSystem.warmGray800,
+      accent: colorSystem.warmGray700,
     },
 
     shadow: createShadowScale(colorSystem.white),
