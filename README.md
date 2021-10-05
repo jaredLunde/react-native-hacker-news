@@ -2,7 +2,7 @@
 
 > A Hacker News app written in react-native and [Dash](https://github.com/dash-ui/react-native)
 
-![light mode](.readme/light-mode.png) ![dark mode](.readme/dark-mode.png)
+<img src='.readme/light-mode.png' width=300> <img src='.readme/dark-mode.png' width=300>
 
 ## Getting started
 
