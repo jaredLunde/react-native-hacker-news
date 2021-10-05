@@ -66,8 +66,8 @@ function Header(props: NativeStackHeaderProps) {
         <Image
           source={logo}
           style={(t) => ({
-            width: responsiveSize(20),
-            height: responsiveSize(20),
+            width: t.type.size.lg,
+            height: t.type.size.lg,
             borderRadius: t.radius.md,
             marginRight: t.space.md,
           })}

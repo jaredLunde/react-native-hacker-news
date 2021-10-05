@@ -27,7 +27,6 @@ export function Home() {
       <ScrollView
         style={(t) => ({
           height: "100%",
-          paddingTop: 8,
           backgroundColor: t.color.bodyBg,
           borderBottomLeftRadius: t.radius.xl,
           borderBottomRightRadius: t.radius.xl,
@@ -42,7 +41,17 @@ export function Home() {
 }
 
 function Story({ index, id }: { index: number; id: number }) {
-  const story = useSWRNative(
+  const story = useSWRNative<{
+    by: string;
+    descendants: number;
+    id: number;
+    kids: number[];
+    score: number;
+    time: number;
+    title: string;
+    type: "story" | "job" | "comment" | "poll" | "pollopt";
+    url: "http://www.getdropbox.com/u/2/screencast.html";
+  }>(
     `https://hacker-news.firebaseio.com/v0/item/${id}.json`,
     async function (key) {
       const response = await fetch(key, {
@@ -63,8 +72,8 @@ function Story({ index, id }: { index: number; id: number }) {
     <View
       style={(t) => ({
         padding: t.space.lg,
-        paddingTop: index === 0 ? t.space.lg : t.space.md,
-        paddingBottom: index < 4 ? t.space.lg : t.space.md,
+        paddingTop: index === 0 ? t.space.xl : t.space.md,
+        paddingBottom: t.space.md,
       })}
     >
       <Text
