@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "lint": "eslint . --ext .js,.ts,.tsx",
     "prepare": "husky install",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "web": "expo start --web"
   },
   "config": {
