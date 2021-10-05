@@ -476,8 +476,8 @@ const themes: Record<
   "light" | "dark",
   {
     color: {
-      primaryText: RN.ColorValue;
-      accentText: RN.ColorValue;
+      textPrimary: RN.ColorValue;
+      textAccent: RN.ColorValue;
       bodyBg: RN.ColorValue;
       headerBg: RN.ColorValue;
       accent: RN.ColorValue;
@@ -487,8 +487,8 @@ const themes: Record<
 > = {
   light: {
     color: {
-      primaryText: colorSystem.black,
-      accentText: colorSystem.gray500,
+      textPrimary: colorSystem.black,
+      textAccent: colorSystem.warmGray600,
       bodyBg: colorSystem.white,
       headerBg: colorSystem.amber100,
       accent: colorSystem.warmGray300,
@@ -498,8 +498,8 @@ const themes: Record<
   },
   dark: {
     color: {
-      primaryText: colorSystem.white,
-      accentText: colorSystem.gray300,
+      textPrimary: colorSystem.white,
+      textAccent: colorSystem.warmGray400,
       bodyBg: colorSystem.black,
       headerBg: colorSystem.warmGray800,
       accent: colorSystem.warmGray700,

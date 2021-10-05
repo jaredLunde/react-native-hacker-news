@@ -26,5 +26,6 @@
       "@/types/*": ["types/*"],
       "@/utils/*": ["utils/*"]
     }
-  }
+  },
+  "extends": "expo/tsconfig.base"
 }

@@ -1,4 +1,6 @@
 import "react-native-url-polyfill/auto";
+import "intl";
+import "intl/locale-data/jsonp/en";
 import { NavigationContainer } from "@react-navigation/native";
 import type { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -8,7 +10,7 @@ import * as React from "react";
 import { useColorScheme } from "react-native";
 import logo from "@/assets/logo.png";
 import { Image, SafeAreaView, Text, View } from "@/components/primitives";
-import { DashProvider, responsiveSize } from "@/dash";
+import { DashProvider } from "@/dash";
 import { Home } from "@/screens/home";
 
 registerRootComponent(App);
@@ -75,7 +77,8 @@ function Header(props: NativeStackHeaderProps) {
         <Text
           style={(t) => ({
             fontSize: t.type.size.lg,
-            color: t.color.primaryText,
+            lineHeight: t.type.size.lg,
+            color: t.color.textPrimary,
             fontWeight: "900",
           })}
         >

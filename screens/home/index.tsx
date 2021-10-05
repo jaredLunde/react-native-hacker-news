@@ -18,6 +18,12 @@ export function Home() {
     return <Text>Loading...</Text>;
   }
 
+  const date = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  }).format(new Date());
+
   return (
     <SafeAreaView
       style={(t) => ({
@@ -32,6 +38,19 @@ export function Home() {
           borderBottomRightRadius: t.radius.xl,
         })}
       >
+        <Text
+          style={(t) => ({
+            backgroundColor: t.color.headerBg,
+            padding: t.space.lg,
+            paddingTop: 0,
+            fontSize: t.type.size["lg"],
+            lineHeight: t.type.size["lg"],
+            fontWeight: "900",
+            color: t.color.textAccent,
+          })}
+        >
+          {date}
+        </Text>
         {stories.data.slice(0, 20).map((id, index) => (
           <Story key={index} index={index} id={id} />
         ))}
@@ -73,12 +92,13 @@ function Story({ index, id }: { index: number; id: number }) {
       style={(t) => ({
         padding: t.space.lg,
         paddingTop: index === 0 ? t.space.xl : t.space.md,
-        paddingBottom: t.space.md,
+        paddingBottom:
+          index === 0 ? t.space.xl : index < 4 ? t.space.lg : t.space.md,
       })}
     >
       <Text
         style={(t) => ({
-          color: t.color.primaryText,
+          color: t.color.textPrimary,
           fontSize: t.type.size[index === 0 ? "3xl" : index < 4 ? "xl" : "sm"],
           fontWeight: index === 0 ? "900" : index < 4 ? "800" : "500",
           letterSpacing:
@@ -89,7 +109,7 @@ function Story({ index, id }: { index: number; id: number }) {
       </Text>
       <Text
         style={(t) => ({
-          color: t.color.accentText,
+          color: t.color.textAccent,
           fontSize: t.type.size["2xs"],
           fontWeight: "300",
         })}
