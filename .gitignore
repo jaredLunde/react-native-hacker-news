@@ -1,5 +1,7 @@
 node_modules/
 .expo/
+.jest/
+.vercel/
 npm-debug.*
 *.jks
 *.p8

@@ -1,0 +1,161 @@
+name: releases
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  install:
+    name: 🏗️ Install and verify
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !startsWith(github.event.head_commit.message, 'chore:') && !startsWith(github.event.head_commit.message, 'style:') && !contains(github.event.pull_request.title, '[skip ci]') && !startsWith(github.event.pull_request.title, 'chore:') && !startsWith(github.event.pull_request.title, 'style:') && !startsWith(github.event.head_commit.message, 'chore(') && !startsWith(github.event.head_commit.message, 'style(') && !startsWith(github.event.pull_request.title, 'chore(') && !startsWith(github.event.pull_request.title, 'style(')"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.14.3
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+      - name: Install
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: pnpm install --reporter=silent
+      - name: ✅ Check types
+        run: pnpm check-types
+      - name: 🧹 Lint
+        run: pnpm lint -- --quiet
+
+  run-tests:
+    name: "🧪 Tests / ${{ matrix.jobs_index }}"
+    if: "!startsWith(github.event.head_commit.message, 'docs:') && !contains(github.event.pull_request.title, 'docs:') && !startsWith(github.event.head_commit.message, 'docs(') && !contains(github.event.pull_request.title, 'docs(')"
+    runs-on: ubuntu-latest
+    needs: install
+    strategy:
+      # When one test job fails, DO NOT cancel the other containers
+      fail-fast: false
+      matrix:
+        node-version: [16.x]
+        # Runs in X jobs
+        jobs_total: [1] # [2]
+        jobs_index: [0] # [0, 1]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.14.3
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Load node_modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+      - name: Test
+        env:
+          JEST_SUITE_NAME: "Tests / ${{ matrix.jobs_index }}"
+          JEST_JUNIT_OUTPUT_NAME: junit.${{ matrix.jobs_index }}.xml
+          JEST_JUNIT_OUTPUT_DIR: .test-results
+          JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
+        run: pnpm test -- --coverage --silent --maxWorkers=1 --jobsIndex=${{ matrix.jobs_index }} --jobsTotal=${{ matrix.jobs_total }} --reporters=jest-junit
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: .test-results/junit.${{ matrix.jobs_index }}.xml
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-coverage
+          path: coverage
+
+  publish-tests:
+    name: 📤 Publish test results
+    runs-on: ubuntu-latest
+    needs: run-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Download test results
+        uses: actions/download-artifact@v2
+        with:
+          name: test-results
+          path: .jest
+      - name: Merge test results
+        run: npx junit-report-merger .jest/junit.xml ".jest/junit.*.xml"
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        with:
+          name: 📥 Test results
+          token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: jest-junit
+          path: .jest/junit.xml
+          list-suites: "all"
+          list-tests: "all"
+          max-annotations: "50"
+          fail-on-error: "true"
+      - name: Commit test results
+        if: ${{ github.event_name == 'push' }}
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          file_pattern: .jest/junit.xml
+          commit_message: "chore: update test results"
+
+  deploy-docs:
+    name: Deploy Documentation
+    # Don't run deployments for test-only commits/PRs
+    if: "github.event_name == 'push' && !startsWith(github.event.head_commit.message, 'test:') && !startsWith(github.event.pull_request.title, 'test:') && !startsWith(github.event.head_commit.message, 'test(') && !startsWith(github.event.pull_request.title, 'test(')"
+    runs-on: ubuntu-latest
+    needs: install
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.14.3
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Load node_modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+      - name: Create the docs directory locally in CI
+        run: pnpm typedoc --out .docs {components,hooks,pages,stores,styles}/**
+      - name: Deploy Docs
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: .docs
