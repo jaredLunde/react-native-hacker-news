@@ -7,7 +7,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { registerRootComponent } from "expo";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
-import { useColorScheme } from "react-native";
+import { AppState, useColorScheme } from "react-native";
+import { SWRConfig } from "swr";
 import logo from "@/assets/logo.png";
 import { Image, SafeAreaView, Text, View } from "@/components/primitives";
 import { DashProvider } from "@/dash";
@@ -20,17 +21,47 @@ const Stack = createNativeStackNavigator();
 function App() {
   const colorScheme = useColorScheme();
   return (
-    <DashProvider theme={colorScheme || "light"}>
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            header: Header,
-          }}
-        >
-          <Stack.Screen name="Home" component={Home} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </DashProvider>
+    <SWRConfig
+      value={{
+        provider: () => new Map(),
+        isVisible: () => {
+          return true;
+        },
+        initFocus(callback) {
+          let appState = AppState.currentState;
+
+          const onAppStateChange = (nextAppState: typeof appState) => {
+            /* If it's resuming from background or inactive mode to active one */
+            if (
+              appState.match(/inactive|background/) &&
+              nextAppState === "active"
+            ) {
+              callback();
+            }
+            appState = nextAppState;
+          };
+
+          // Subscribe to the app state change events
+          AppState.addEventListener("change", onAppStateChange);
+
+          return () => {
+            AppState.removeEventListener("change", onAppStateChange);
+          };
+        },
+      }}
+    >
+      <DashProvider theme={colorScheme || "light"}>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              header: Header,
+            }}
+          >
+            <Stack.Screen name="Home" component={Home} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </DashProvider>
+    </SWRConfig>
   );
 }
 
@@ -77,7 +108,6 @@ function Header(props: NativeStackHeaderProps) {
         <Text
           style={(t) => ({
             fontSize: t.type.size.lg,
-            lineHeight: t.type.size.lg,
             color: t.color.textPrimary,
             fontWeight: "900",
           })}

@@ -490,7 +490,7 @@ const themes: Record<
       textPrimary: colorSystem.black,
       textAccent: colorSystem.warmGray600,
       bodyBg: colorSystem.white,
-      headerBg: colorSystem.amber100,
+      headerBg: colorSystem.white,
       accent: colorSystem.warmGray300,
     },
 
@@ -501,7 +501,7 @@ const themes: Record<
       textPrimary: colorSystem.white,
       textAccent: colorSystem.warmGray400,
       bodyBg: colorSystem.black,
-      headerBg: colorSystem.warmGray800,
+      headerBg: colorSystem.black,
       accent: colorSystem.warmGray700,
     },
 

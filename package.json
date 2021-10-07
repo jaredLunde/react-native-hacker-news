@@ -18,21 +18,24 @@
     }
   },
   "dependencies": {
-    "@dash-ui/react-native": "^1.1.5",
-    "@nandorojo/swr-react-native": "^0.1.3",
+    "@dash-ui/react-native": "^1.2.0",
     "@react-native-community/netinfo": "6.0.0",
     "@react-navigation/native": "^6.0.4",
     "@react-navigation/native-stack": "^6.2.2",
     "expo": "~42.0.1",
     "expo-status-bar": "~1.0.4",
     "intl": "^1.2.5",
+    "javascript-time-ago": "^2.3.9",
+    "node-html-parser": "^4.1.5",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
+    "react-native-html-parser": "^0.1.0",
     "react-native-screens": "^3.8.0",
     "react-native-url-polyfill": "^1.3.0",
     "react-native-web": "~0.13.12",
-    "swr": "^0.5.4"
+    "swr": "^1.0.1",
+    "trie-memoize": "^1.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
@@ -43,6 +46,7 @@
     "@testing-library/jest-native": "^4.0.2",
     "@testing-library/react": "^12.1.1",
     "@testing-library/react-native": "^7.2.0",
+    "@types/javascript-time-ago": "^2.0.3",
     "@types/jest": "latest",
     "@types/react": "~16.9.35",
     "@types/react-native": "~0.63.2",
