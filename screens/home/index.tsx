@@ -4,7 +4,13 @@ import { parse as parseHtml } from "node-html-parser";
 import * as React from "react";
 import useSWR from "swr";
 import memoize from "trie-memoize";
-import { Image, ScrollView, Text, View } from "@/components/primitives";
+import {
+  Image,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+} from "@/components/primitives";
 
 export function Home() {
   const stories = useSWR<number[]>(
@@ -39,6 +45,12 @@ export function Home() {
           borderBottomLeftRadius: t.radius.xl,
           borderBottomRightRadius: t.radius.xl,
         })}
+        refreshControl={
+          <RefreshControl
+            refreshing={!stories.data}
+            onRefresh={() => stories.mutate([])}
+          />
+        }
       >
         <Text
           style={(t) => ({
