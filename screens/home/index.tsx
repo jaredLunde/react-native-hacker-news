@@ -11,6 +11,7 @@ import {
   Text,
   View,
 } from "@/components/primitives";
+import { Skeleton } from "@/components/skeleton";
 
 export function Home() {
   const stories = useSWR<number[]>(
@@ -75,16 +76,21 @@ export function Home() {
             flexShrink: 1,
           })}
         >
-          {stories.data.slice(0, 12).map((id, index) => (
-            <Story key={index} index={index} id={id} />
-          ))}
+          {(!stories.data
+            ? (Array.from({ length: 12 }).fill(null) as null[])
+            : stories.data
+          )
+            .slice(0, 12)
+            .map((id, index) => (
+              <Story key={index} index={index} id={id} />
+            ))}
         </View>
       </ScrollView>
     </View>
   );
 }
 
-function Story({ index, id }: { index: number; id: number }) {
+function Story({ index, id }: { index: number; id: number | null }) {
   const story = useSWR<{
     by: string;
     descendants: number;
@@ -95,12 +101,15 @@ function Story({ index, id }: { index: number; id: number }) {
     title: string;
     type: "story" | "job" | "comment" | "poll" | "pollopt";
     url: "http://www.getdropbox.com/u/2/screencast.html";
-  }>(`https://hacker-news.firebaseio.com/v0/item/${id}.json`, (key) =>
-    fetch(key, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    }).then((res) => res.json())
+  }>(
+    id === null ? id : `https://hacker-news.firebaseio.com/v0/item/${id}.json`,
+    (key) =>
+      fetch(key, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }).then((res) => res.json())
   );
+  const [showSkeletonImage] = React.useState(Math.random() > 0.67);
   const url = new URL(story.data?.url || "http://localhost");
   const metadata = useMetadata(url);
   const [faviconStatus, setFaviconStatus] = React.useState<
@@ -112,7 +121,110 @@ function Story({ index, id }: { index: number; id: number }) {
   }
 
   if (!story.data) {
-    return <Text>Loading...</Text>;
+    return (
+      <View
+        style={(t) => ({
+          width: index === 0 || index > 4 ? "100%" : "50%",
+          padding: t.space.lg,
+          paddingTop:
+            index === 0 ? t.space.xl : index < 5 ? t.space.md : t.space.lg,
+          paddingBottom:
+            index === 0 ? t.space.xl : index < 5 ? t.space.lg : t.space.lg,
+        })}
+      >
+        {showSkeletonImage && (
+          <Skeleton
+            style={(t) => ({
+              width: "100%",
+              height: index === 0 || index > 4 ? 172 : 96,
+              marginBottom: t.space.md,
+              borderRadius: t.radius.secondary,
+            })}
+          />
+        )}
+        <View
+          style={(t) => ({
+            width: "100%",
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: t.space.sm,
+          })}
+        >
+          <Skeleton
+            style={(t) => ({
+              width: 20,
+              height: 20,
+              borderRadius: t.radius.md,
+              marginRight: t.space.sm,
+            })}
+          />
+
+          <Skeleton
+            style={(t) => ({
+              flex: 1,
+              width: 160,
+              height: t.type.size["2xs"] * 1.25,
+            })}
+          />
+        </View>
+
+        <Skeleton
+          style={(t) => ({
+            width: "100%",
+            height:
+              t.type.size[index === 0 ? "6xl" : index < 5 ? "lg" : "sm"] * 1.25,
+            marginBottom: t.space.sm,
+          })}
+        />
+
+        <View>
+          <View
+            style={(t) => ({
+              width: "100%",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginBottom: t.space.xs,
+            })}
+          >
+            <Skeleton
+              style={(t) => ({
+                height: t.type.size["2xs"] * 1.25,
+                width: 120,
+              })}
+            />
+
+            <Skeleton
+              style={(t) => ({
+                height: t.type.size["2xs"] * 1.25,
+                width: 30,
+              })}
+            />
+          </View>
+
+          <View
+            style={(t) => ({
+              flexDirection: "row",
+              width: "100%",
+              height: t.type.size["2xs"] * 1.25,
+            })}
+          >
+            <Skeleton
+              style={(t) => ({
+                height: "100%",
+                width: 54,
+                marginRight: t.space.lg,
+              })}
+            />
+            <Skeleton
+              style={(t) => ({
+                height: "100%",
+                width: 72,
+              })}
+            />
+          </View>
+        </View>
+      </View>
+    );
   }
 
   return (
@@ -176,15 +288,7 @@ function Story({ index, id }: { index: number; id: number }) {
 
       <Text
         adjustsFontSizeToFit
-        numberOfLines={
-          index === 0 && metadata?.image
-            ? 2
-            : !index
-            ? 3
-            : index < 5 && metadata?.image
-            ? 4
-            : 6
-        }
+        numberOfLines={index === 0 ? 3 : index < 5 && metadata?.image ? 4 : 6}
         style={(t) => ({
           color: t.color.textPrimary,
           fontSize: t.type.size[index === 0 ? "6xl" : index < 5 ? "lg" : "sm"],
@@ -232,7 +336,6 @@ function Story({ index, id }: { index: number; id: number }) {
             fontWeight: "600",
             color: t.color.textAccent,
             fontSize: t.type.size["2xs"],
-            marginRight: t.space.md,
           })}
         >
           ⇧{story.data.score} &bull;{" "}

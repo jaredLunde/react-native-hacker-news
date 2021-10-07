@@ -2,6 +2,10 @@ import * as RN from "react-native";
 import { styled } from "@/dash";
 
 export const ActivityIndicator = styled(RN.ActivityIndicator);
+export const AnimatedImage = styled(RN.Animated.Image);
+export const AnimatedScrollView = styled(RN.Animated.ScrollView);
+export const AnimatedText = styled(RN.Animated.Text);
+export const AnimatedView = styled(RN.Animated.View);
 export const DrawerLayoutAndroid = styled(RN.DrawerLayoutAndroid);
 export const FlatList = styled(RN.FlatList);
 export const Image = styled(RN.Image);
