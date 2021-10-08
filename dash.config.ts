@@ -472,7 +472,7 @@ export const tokens = {
   borderWidth: borderWidthScale,
 };
 
-const themes: Record<
+export const themes: Record<
   "light" | "dark",
   {
     color: {
@@ -481,6 +481,7 @@ const themes: Record<
       bodyBg: RN.ColorValue;
       headerBg: RN.ColorValue;
       accent: RN.ColorValue;
+      accentLight: RN.ColorValue;
     };
     shadow: ReturnType<typeof createShadowScale>;
   }
@@ -492,6 +493,7 @@ const themes: Record<
       bodyBg: colorSystem.white,
       headerBg: colorSystem.white,
       accent: colorSystem.warmGray300,
+      accentLight: colorSystem.warmGray200,
     },
 
     shadow: createShadowScale(),
@@ -500,9 +502,10 @@ const themes: Record<
     color: {
       textPrimary: colorSystem.white,
       textAccent: colorSystem.warmGray400,
-      bodyBg: colorSystem.black,
-      headerBg: colorSystem.black,
-      accent: colorSystem.warmGray700,
+      bodyBg: colorSystem.warmGray900,
+      headerBg: colorSystem.warmGray900,
+      accent: colorSystem.warmGray600,
+      accentLight: colorSystem.warmGray700,
     },
 
     shadow: createShadowScale(colorSystem.white),

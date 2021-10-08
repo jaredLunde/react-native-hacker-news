@@ -3,7 +3,6 @@ import "intl";
 import "intl/locale-data/jsonp/en";
 import { NavigationContainer } from "@react-navigation/native";
 import type { NativeStackHeaderProps } from "@react-navigation/native-stack";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { registerRootComponent } from "expo";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
@@ -12,11 +11,11 @@ import { SWRConfig } from "swr";
 import logo from "@/assets/logo.png";
 import { Image, SafeAreaView, Text, View } from "@/components/primitives";
 import { DashProvider } from "@/dash";
+import { BrowserModal } from "@/screens/browser-modal";
 import { Home } from "@/screens/home";
+import { Stack } from "@/screens/routers";
 
 registerRootComponent(App);
-
-const Stack = createNativeStackNavigator();
 
 function App() {
   const colorScheme = useColorScheme();
@@ -58,6 +57,11 @@ function App() {
             }}
           >
             <Stack.Screen name="Home" component={Home} />
+            <Stack.Group
+              screenOptions={{ headerShown: false, presentation: "modal" }}
+            >
+              <Stack.Screen name="BrowserModal" component={BrowserModal} />
+            </Stack.Group>
           </Stack.Navigator>
         </NavigationContainer>
       </DashProvider>

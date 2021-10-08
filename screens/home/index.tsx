@@ -1,7 +1,11 @@
+import type { NavigationProp } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en.json";
 import { parse as parseHtml } from "node-html-parser";
 import * as React from "react";
+import { Pressable } from "react-native";
 import useSWR from "swr";
 import memoize from "trie-memoize";
 import {
@@ -12,8 +16,9 @@ import {
   View,
 } from "@/components/primitives";
 import { Skeleton } from "@/components/skeleton";
+import type { StackParamList } from "@/screens/routers";
 
-export function Home() {
+export function Home(props: HomeProps) {
   const stories = useSWR<number[]>(
     "https://hacker-news.firebaseio.com/v0/topstories.json",
     (key) =>
@@ -22,10 +27,6 @@ export function Home() {
         headers: { "Content-Type": "application/json" },
       }).then((res) => res.json())
   );
-
-  if (!stories.data) {
-    return <Text>Loading...</Text>;
-  }
 
   const date = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
@@ -77,7 +78,7 @@ export function Home() {
           })}
         >
           {(!stories.data
-            ? (Array.from({ length: 12 }).fill(null) as null[])
+            ? (Array.from({ length: 6 }).fill(null) as null[])
             : stories.data
           )
             .slice(0, 12)
@@ -111,6 +112,7 @@ function Story({ index, id }: { index: number; id: number | null }) {
   );
   const [showSkeletonImage] = React.useState(Math.random() > 0.67);
   const url = new URL(story.data?.url || "http://localhost");
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
   const metadata = useMetadata(url);
   const [faviconStatus, setFaviconStatus] = React.useState<
     "loading" | "error" | "success"
@@ -239,52 +241,69 @@ function Story({ index, id }: { index: number; id: number | null }) {
       })}
     >
       {metadata?.image ? (
-        <Image
-          source={{ uri: metadata?.image }}
-          style={(t) => ({
-            width: "100%",
-            height: index === 0 || index > 4 ? 172 : 96,
-            marginBottom: t.space.md,
-            borderRadius: t.radius.secondary,
-          })}
-        />
-      ) : null}
-
-      <View
-        style={(t) => ({
-          width: "100%",
-          flexDirection: "row",
-          alignItems: "center",
-          marginBottom: t.space.sm,
-        })}
-      >
-        {faviconStatus === "success" ? (
+        <Pressable
+          onPress={() =>
+            navigation.navigate("BrowserModal", {
+              title: story.data?.title,
+              url: url.toString(),
+            })
+          }
+        >
           <Image
-            source={{ uri: metadata?.favicon }}
+            source={{ uri: metadata?.image }}
             style={(t) => ({
-              width: 20,
-              height: 20,
-              borderRadius: t.radius.md,
-              marginRight: t.space.sm,
+              width: "100%",
+              height: index === 0 || index > 4 ? 172 : 96,
+              marginBottom: t.space.md,
+              borderRadius: t.radius.secondary,
             })}
-            onError={() => setFaviconStatus("error")}
           />
-        ) : null}
-
-        <Text
-          numberOfLines={1}
-          ellipsizeMode="tail"
+        </Pressable>
+      ) : null}
+      <Pressable
+        onPress={() =>
+          navigation.navigate("BrowserModal", {
+            title: metadata?.applicationName || story.data?.title,
+            url: url.origin,
+          })
+        }
+      >
+        <View
           style={(t) => ({
-            flex: 1,
             width: "100%",
-            color: t.color.textAccent,
-            fontSize: t.type.size["2xs"],
-            fontWeight: "300",
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: t.space.sm,
           })}
         >
-          {metadata?.applicationName || url.host.replace(/^www\./, "")}
-        </Text>
-      </View>
+          {faviconStatus === "success" ? (
+            <Image
+              source={{ uri: metadata?.favicon }}
+              style={(t) => ({
+                width: 20,
+                height: 20,
+                borderRadius: t.radius.md,
+                marginRight: t.space.sm,
+              })}
+              onError={() => setFaviconStatus("error")}
+            />
+          ) : null}
+
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={(t) => ({
+              flex: 1,
+              width: "100%",
+              color: t.color.textAccent,
+              fontSize: t.type.size["2xs"],
+              fontWeight: "300",
+            })}
+          >
+            {metadata?.applicationName || url.host.replace(/^www\./, "")}
+          </Text>
+        </View>
+      </Pressable>
 
       <Text
         adjustsFontSizeToFit
@@ -297,6 +316,12 @@ function Story({ index, id }: { index: number; id: number | null }) {
             index < 4 ? t.type.tracking.tighter : t.type.tracking.tight,
           marginBottom: t.space.sm,
         })}
+        onPress={() =>
+          navigation.navigate("BrowserModal", {
+            title: story.data?.title,
+            url: url.toString(),
+          })
+        }
       >
         {story.data.title}
       </Text>
@@ -413,3 +438,6 @@ function useMetadata(url: URL) {
 const parse = memoize([Map], parseHtml);
 TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo("en-US");
+
+export interface HomeProps
+  extends NativeStackScreenProps<StackParamList, "Home"> {}

@@ -1,4 +1,5 @@
 import * as RN from "react-native";
+import { WebView as RNWebView } from "react-native-webview";
 import { styled } from "@/dash";
 
 export const ActivityIndicator = styled(RN.ActivityIndicator);
@@ -13,6 +14,7 @@ export const ImageBackground = styled(RN.ImageBackground);
 export const KeyboardAvoidingView = styled(RN.KeyboardAvoidingView);
 export const Modal = styled(RN.Modal);
 export const NavigatorIOS = styled(RN.NavigatorIOS);
+export const Pressable = styled(RN.Pressable);
 export const RecyclerViewBackedScrollView = styled(
   RN.RecyclerViewBackedScrollView
 );
@@ -28,4 +30,5 @@ export const TouchableHighlight = styled(RN.TouchableHighlight);
 export const TouchableNativeFeedback = styled(RN.TouchableNativeFeedback);
 export const TouchableOpacity = styled(RN.TouchableOpacity);
 export const TouchableWithoutFeedback = styled(RN.TouchableWithoutFeedback);
+export const WebView = styled(RNWebView);
 export const View = styled(RN.View);
