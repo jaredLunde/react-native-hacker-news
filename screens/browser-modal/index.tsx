@@ -1,4 +1,4 @@
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather, FontAwesome5 } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Linking from "expo-linking";
 import React from "react";
@@ -48,15 +48,15 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
           style={(t) => ({
             alignItems: "center",
             justifyContent: "center",
-            width: 24 + t.space.sm * 2,
-            height: 24 + t.space.sm * 2,
+            width: 20 + t.space.sm * 2,
+            height: 20 + t.space.sm * 2,
             borderRadius: t.radius.full,
             marginRight: t.space.md,
             backgroundColor:
               theme === "dark" ? t.color.accentLight : t.color.accentLight,
           })}
         >
-          <Feather name="x" size={24} color={color.textPrimary} />
+          <Feather name="x" size={20} color={color.textPrimary} />
         </TouchableOpacity>
 
         <Text
@@ -100,7 +100,7 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
       >
         <TouchableOpacity
           onPress={() => ref.current?.goBack()}
-          style={(t) => ({ padding: t.space.lg })}
+          style={(t) => ({ padding: t.space.lg, paddingTop: t.space.md })}
         >
           <Feather
             name="chevron-left"
@@ -113,7 +113,7 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
 
         <TouchableOpacity
           onPress={() => ref.current?.goForward()}
-          style={(t) => ({ padding: t.space.lg })}
+          style={(t) => ({ padding: t.space.lg, paddingTop: t.space.md })}
         >
           <Feather
             name="chevron-right"
@@ -133,7 +133,7 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
               url: navigationState?.url ?? route.params.url,
             })
           }
-          style={(t) => ({ padding: t.space.lg })}
+          style={(t) => ({ padding: t.space.lg, paddingTop: t.space.md })}
         >
           <Feather name="share" size={24} color={color.textPrimary} />
         </TouchableOpacity>
@@ -142,13 +142,9 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
           onPress={() =>
             Linking.openURL(navigationState?.url ?? route.params.url)
           }
-          style={(t) => ({ padding: t.space.lg })}
+          style={(t) => ({ padding: t.space.lg, paddingTop: t.space.md })}
         >
-          <MaterialCommunityIcons
-            name="apple-safari"
-            size={30}
-            color={color.textPrimary}
-          />
+          <FontAwesome5 name="safari" size={30} color={color.textPrimary} />
         </TouchableOpacity>
       </SafeAreaView>
     </View>

@@ -489,7 +489,7 @@ export const themes: Record<
   light: {
     color: {
       textPrimary: colorSystem.black,
-      textAccent: colorSystem.warmGray600,
+      textAccent: colorSystem.warmGray500,
       bodyBg: colorSystem.white,
       headerBg: colorSystem.white,
       accent: colorSystem.warmGray300,

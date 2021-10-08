@@ -27,4 +27,10 @@ yarn && yarn ios
 | `test`        | Runs Jest on the project                        |
 | `web`         | Start developing the web app in the browser     |
 
+---
+
 <img src='.readme/light-mode-scrolled.png' width=300> <img src='.readme/dark-mode-scrolled.png' width=300>
+
+---
+
+<img src='.readme/light-mode-web-browser.png' width=300> <img src='.readme/dark-mode-web-browser.png' width=300>
