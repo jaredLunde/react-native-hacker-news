@@ -141,7 +141,7 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - name: Create the docs directory locally in CI
-        run: yarn typedoc --out .docs {components,hooks,screens,stores,styles}/**
+        run: yarn typedoc --out .docs {components,hooks,screens,stores,styles,types,utils}/**
       - name: Deploy Docs
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:

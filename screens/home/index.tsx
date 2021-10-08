@@ -19,6 +19,9 @@ import { Skeleton } from "@/components/skeleton";
 import type { StackParamList } from "@/screens/routers";
 
 export function Home(props: HomeProps) {
+  /**
+   * @see https://github.com/HackerNews/API
+   */
   const stories = useSWR<number[]>(
     "https://hacker-news.firebaseio.com/v0/topstories.json",
     (key) =>
