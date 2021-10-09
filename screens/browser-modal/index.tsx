@@ -7,28 +7,27 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Linking from "expo-linking";
 import React from "react";
 import * as RN from "react-native";
-import { Share, useColorScheme, useWindowDimensions } from "react-native";
+import { Share, useWindowDimensions } from "react-native";
 import type { WebViewNavigation } from "react-native-webview";
 import { WebView } from "react-native-webview";
-import type { AppThemeNames } from "@/dash";
-import { styledMemo, themes, useDash } from "@/dash";
+import { Icon } from "@/components/icon";
+import { responsiveSize, styledMemo, useDash } from "@/dash";
 import type { StackParamList } from "@/screens/routers";
 
 export function BrowserModal({ navigation, route }: BrowserModalProps) {
-  const { theme } = useDash();
-  const colorScheme = useColorScheme();
+  const {
+    tokens: { color },
+  } = useDash();
   const dimensions = useWindowDimensions();
   const ref = React.useRef<WebViewRef>(null);
   const [navigationState, setNavigationState] =
     React.useState<WebViewNavigation | null>(null);
-  const color =
-    themes[theme === "default" ? colorScheme || "light" : theme].color;
 
   return (
     <Container>
       <ModalHeader>
-        <CloseButton theme={theme} onPress={() => navigation.goBack()}>
-          <Feather name="x" size={20} color={color.textPrimary} />
+        <CloseButton onPress={() => navigation.goBack()}>
+          <Icon name="x" size={20} color="textAccent" />
         </CloseButton>
 
         <Title numberOfLines={1} ellipsizeMode="tail">
@@ -51,24 +50,18 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
 
       <Footer>
         <FooterButton onPress={() => ref.current?.goBack()}>
-          <Feather
+          <Icon
             name="chevron-left"
-            size={30}
-            color={
-              navigationState?.canGoBack ? color.textPrimary : color.textAccent
-            }
+            size={24}
+            color={navigationState?.canGoBack ? "textPrimary" : "textAccent"}
           />
         </FooterButton>
 
         <FooterButton onPress={() => ref.current?.goForward()}>
-          <Feather
+          <Icon
             name="chevron-right"
-            size={30}
-            color={
-              navigationState?.canGoForward
-                ? color.textPrimary
-                : color.textAccent
-            }
+            size={24}
+            color={navigationState?.canGoBack ? "textPrimary" : "textAccent"}
           />
         </FooterButton>
 
@@ -84,7 +77,11 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
             (RN.Platform.OS === "ios"
               ? Feather
               : MaterialCommunityIcons) as any,
-            { name: "share", size: 24, color: color.textPrimary }
+            {
+              name: "share",
+              size: responsiveSize(20),
+              color: color.textPrimary,
+            }
           )}
         </FooterButton>
 
@@ -95,7 +92,7 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
         >
           <FontAwesome5
             name={RN.Platform.OS === "ios" ? "safari" : "chrome"}
-            size={30}
+            size={responsiveSize(20)}
             color={color.textPrimary}
           />
         </FooterButton>
@@ -120,20 +117,15 @@ const ModalHeader = styledMemo(RN.View, (t) => ({
   borderBottomWidth: t.borderWidth.hairline,
 }));
 
-const CloseButton = styledMemo(
-  RN.TouchableOpacity,
-  (t, p: { theme: Omit<AppThemeNames, "default"> }) => ({
-    alignItems: "center",
-    justifyContent: "center",
-    width: 20 + t.space.sm * 2,
-    height: 20 + t.space.sm * 2,
-    borderRadius: t.radius.full,
-    marginRight: t.space.md,
-    backgroundColor:
-      p.theme === "dark" ? t.color.accentLight : t.color.accentLight,
-  }),
-  ["theme"]
-);
+const CloseButton = styledMemo(RN.TouchableOpacity, (t) => ({
+  alignItems: "center",
+  justifyContent: "center",
+  width: 20 + t.space.sm * 2,
+  height: 20 + t.space.sm * 2,
+  borderRadius: t.radius.full,
+  marginRight: t.space.md,
+  backgroundColor: t.color.accentLight,
+}));
 
 const Title = styledMemo(RN.Text, (t) => ({
   color: t.color.textAccent,

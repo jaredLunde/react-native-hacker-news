@@ -1,5 +1,9 @@
 import { createStyles } from "@dash-ui/react-native";
-import type { RNStyles, StyledCallback , StyledValue } from "@dash-ui/react-native";
+import type {
+  RNStyles,
+  StyledCallback,
+  StyledValue,
+} from "@dash-ui/react-native";
 import memoize from "@essentials/memoize-one";
 import * as RN from "react-native";
 import type { ValueOf } from "type-fest";
@@ -555,12 +559,15 @@ export function styledMemo<StyleProps extends {}, Props extends {}>(
 }
 
 export function tokensAreEqual<Props extends {}>(
-  [t]: [typeof styles.tokens.light | typeof styles.tokens.dark, Props],
-  [nt]: [typeof styles.tokens.light | typeof styles.tokens.dark, Props]
+  [t]: [AppTokens] | [AppTokens, Props],
+  [nt]: [AppTokens] | [AppTokens, Props]
 ) {
   return t === nt;
 }
 
-export type AppTokens = typeof tokens;
+export type AppTokens = typeof styles.tokens.light | typeof styles.tokens.dark;
 export type AppThemes = typeof themes;
 export type AppThemeNames = keyof AppThemes;
+export type AppColors =
+  | keyof typeof styles.tokens.dark.color
+  | keyof typeof styles.tokens.light.color;
