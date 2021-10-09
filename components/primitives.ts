@@ -32,3 +32,4 @@ export const TouchableOpacity = styled(RN.TouchableOpacity);
 export const TouchableWithoutFeedback = styled(RN.TouchableWithoutFeedback);
 export const WebView = styled(RNWebView);
 export const View = styled(RN.View);
+export const VirtualizedList = styled(RN.VirtualizedList);

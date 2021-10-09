@@ -1,17 +1,17 @@
-import { Feather, FontAwesome5 } from "@expo/vector-icons";
+import {
+  Feather,
+  FontAwesome5,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Linking from "expo-linking";
 import React from "react";
+import * as RN from "react-native";
 import { Share, useColorScheme, useWindowDimensions } from "react-native";
 import type { WebViewNavigation } from "react-native-webview";
-import {
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  View,
-  WebView,
-} from "@/components/primitives";
-import { themes, useDash } from "@/dash";
+import { WebView } from "react-native-webview";
+import type { AppThemeNames } from "@/dash";
+import { styledMemo, themes, useDash } from "@/dash";
 import type { StackParamList } from "@/screens/routers";
 
 export function BrowserModal({ navigation, route }: BrowserModalProps) {
@@ -25,54 +25,18 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
     themes[theme === "default" ? colorScheme || "light" : theme].color;
 
   return (
-    <View
-      style={(t) => ({
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: t.color.bodyBg,
-      })}
-    >
-      <View
-        style={(t) => ({
-          flexDirection: "row",
-          alignItems: "center",
-          width: "100%",
-          padding: t.space.md,
-          borderBottomColor: t.color.accent,
-          borderBottomWidth: t.borderWidth.hairline,
-        })}
-      >
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={(t) => ({
-            alignItems: "center",
-            justifyContent: "center",
-            width: 20 + t.space.sm * 2,
-            height: 20 + t.space.sm * 2,
-            borderRadius: t.radius.full,
-            marginRight: t.space.md,
-            backgroundColor:
-              theme === "dark" ? t.color.accentLight : t.color.accentLight,
-          })}
-        >
+    <Container>
+      <ModalHeader>
+        <CloseButton theme={theme} onPress={() => navigation.goBack()}>
           <Feather name="x" size={20} color={color.textPrimary} />
-        </TouchableOpacity>
+        </CloseButton>
 
-        <Text
-          style={(t) => ({
-            color: t.color.textAccent,
-            fontSize: t.type.size["xs"],
-            fontWeight: "700",
-            flex: 1,
-          })}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
+        <Title numberOfLines={1} ellipsizeMode="tail">
           {route.params.title || ""}
-        </Text>
-      </View>
-      <WebView
+        </Title>
+      </ModalHeader>
+
+      <BrowserView
         ref={ref}
         originWhitelist={["*"]}
         allowsLinkPreview
@@ -81,27 +45,12 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
         sharedCookiesEnabled
         enableApplePay
         onNavigationStateChange={setNavigationState}
-        style={(t) => ({
-          width: dimensions.width,
-          height: "100%",
-        })}
         source={{ uri: route.params.url }}
+        width={dimensions.width}
       />
 
-      <SafeAreaView
-        style={(t) => ({
-          width: "100%",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          borderTopColor: t.color.accent,
-          borderTopWidth: t.borderWidth.hairline,
-        })}
-      >
-        <TouchableOpacity
-          onPress={() => ref.current?.goBack()}
-          style={(t) => ({ padding: t.space.lg, paddingTop: t.space.md })}
-        >
+      <Footer>
+        <FooterButton onPress={() => ref.current?.goBack()}>
           <Feather
             name="chevron-left"
             size={30}
@@ -109,12 +58,9 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
               navigationState?.canGoBack ? color.textPrimary : color.textAccent
             }
           />
-        </TouchableOpacity>
+        </FooterButton>
 
-        <TouchableOpacity
-          onPress={() => ref.current?.goForward()}
-          style={(t) => ({ padding: t.space.lg, paddingTop: t.space.md })}
-        >
+        <FooterButton onPress={() => ref.current?.goForward()}>
           <Feather
             name="chevron-right"
             size={30}
@@ -124,32 +70,100 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
                 : color.textAccent
             }
           />
-        </TouchableOpacity>
+        </FooterButton>
 
-        <TouchableOpacity
+        <FooterButton
           onPress={() =>
             Share.share({
               title: navigationState?.title ?? route.params.title,
               url: navigationState?.url ?? route.params.url,
             })
           }
-          style={(t) => ({ padding: t.space.lg, paddingTop: t.space.md })}
         >
-          <Feather name="share" size={24} color={color.textPrimary} />
-        </TouchableOpacity>
+          {React.createElement(
+            (RN.Platform.OS === "ios"
+              ? Feather
+              : MaterialCommunityIcons) as any,
+            { name: "share", size: 24, color: color.textPrimary }
+          )}
+        </FooterButton>
 
-        <TouchableOpacity
+        <FooterButton
           onPress={() =>
             Linking.openURL(navigationState?.url ?? route.params.url)
           }
-          style={(t) => ({ padding: t.space.lg, paddingTop: t.space.md })}
         >
-          <FontAwesome5 name="safari" size={30} color={color.textPrimary} />
-        </TouchableOpacity>
-      </SafeAreaView>
-    </View>
+          <FontAwesome5
+            name={RN.Platform.OS === "ios" ? "safari" : "chrome"}
+            size={30}
+            color={color.textPrimary}
+          />
+        </FooterButton>
+      </Footer>
+    </Container>
   );
 }
+
+const Container = styledMemo(RN.View, (t) => ({
+  flex: 1,
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: t.color.bodyBg,
+}));
+
+const ModalHeader = styledMemo(RN.View, (t) => ({
+  flexDirection: "row",
+  alignItems: "center",
+  width: "100%",
+  padding: t.space.md,
+  borderBottomColor: t.color.accent,
+  borderBottomWidth: t.borderWidth.hairline,
+}));
+
+const CloseButton = styledMemo(
+  RN.TouchableOpacity,
+  (t, p: { theme: Omit<AppThemeNames, "default"> }) => ({
+    alignItems: "center",
+    justifyContent: "center",
+    width: 20 + t.space.sm * 2,
+    height: 20 + t.space.sm * 2,
+    borderRadius: t.radius.full,
+    marginRight: t.space.md,
+    backgroundColor:
+      p.theme === "dark" ? t.color.accentLight : t.color.accentLight,
+  }),
+  ["theme"]
+);
+
+const Title = styledMemo(RN.Text, (t) => ({
+  color: t.color.textAccent,
+  fontSize: t.type.size["xs"],
+  fontWeight: "700",
+  flex: 1,
+}));
+
+const BrowserView = styledMemo(
+  WebView,
+  (_, { width }: { width: number }) => ({
+    width,
+    height: "100%",
+  }),
+  ["width"]
+);
+
+const Footer = styledMemo(RN.SafeAreaView, (t) => ({
+  width: "100%",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  borderTopColor: t.color.accent,
+  borderTopWidth: t.borderWidth.hairline,
+}));
+
+const FooterButton = styledMemo(RN.TouchableOpacity, (t) => ({
+  padding: t.space.lg,
+  paddingTop: t.space.md,
+}));
 
 export interface BrowserModalProps
   extends NativeStackScreenProps<StackParamList, "BrowserModal"> {}

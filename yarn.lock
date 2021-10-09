@@ -1305,10 +1305,10 @@
   dependencies:
     chalk "^4.0.0"
 
-"@dash-ui/react-native@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@dash-ui/react-native/-/react-native-1.2.0.tgz#3bf058d95a1a9e8a51c0268bf8ac3e8681625e8a"
-  integrity sha512-8E+3JBk7McuEd/polvhOJ3rv/YhokbN7HfvR6I6Z/NvRYu+BdMw2/xFUD9zzmLvgRZr1fD7cFVwtuN0bX45QFg==
+"@dash-ui/react-native@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@dash-ui/react-native/-/react-native-1.2.1.tgz#7faea73f02c211c792d5793ca6b68731cd80ba4c"
+  integrity sha512-PtjAH3DFqsY+Co/eO/7daUQli55GiKu+cNBuxeMXyY+mk3N/LZ+ekius3Q9OtvHqLdLywtSg24q3C1rqb0EpZw==
   dependencies:
     "@types/clone-deep" "^4.0.1"
     "@types/css-to-react-native" "^3.0.0"
@@ -1350,6 +1350,11 @@
     js-yaml "^3.13.1"
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
+
+"@essentials/memoize-one@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@essentials/memoize-one/-/memoize-one-1.1.0.tgz#98e7d425d1548921a4c0d2877a2bfe2d5adb8735"
+  integrity sha512-HMkuIkKNe0EWSUpZhlaq9+5Yp47YhrMhxLMnXTRnEyE5N4xKLspAvMGjUFdi794VnEF1EcOZFS8rdROeujrgag==
 
 "@expo/config-plugins@2.0.4":
   version "2.0.4"
@@ -8335,10 +8340,10 @@ react-native-safe-area-context@3.2.0:
   resolved "https://registry.yarnpkg.com/react-native-safe-area-context/-/react-native-safe-area-context-3.2.0.tgz#06113c6b208f982d68ab5c3cebd199ca93db6941"
   integrity sha512-k2Nty4PwSnrg9HwrYeeE+EYqViYJoOFwEy9LxL5RIRfoqxAq/uQXNGwpUg2/u4gnKpBbEPa9eRh15KKMe/VHkA==
 
-react-native-screens@^3.8.0:
-  version "3.8.0"
-  resolved "https://registry.yarnpkg.com/react-native-screens/-/react-native-screens-3.8.0.tgz#4ec84c55a7b4a4aa9405c812978ca2ba5c0242a4"
-  integrity sha512-lHrnB/elAoMJKv8O12U6BLgeup4lB6ZKJHEOVuG/D72nv/OE9wUusbou6YCB5tp3YbaSpHflPnkFmHA/vCejpw==
+react-native-screens@~3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-screens/-/react-native-screens-3.4.0.tgz#91deeac7630db9f3984053e2ab146d71bba7af4e"
+  integrity sha512-cg+q9MRnVdeOcJyvJtqffoXLur/C2wHA/7IO2+FAipzTlgHbbM1mTuSM7qG+SeiQjoIs4mHOEf7A0ziPKW04sA==
   dependencies:
     warn-once "^0.1.0"
 

@@ -1,6 +1,8 @@
 import { createStyles } from "@dash-ui/react-native";
-import type { RNStyles } from "@dash-ui/react-native";
+import type { RNStyles, StyledCallback , StyledValue } from "@dash-ui/react-native";
+import memoize from "@essentials/memoize-one";
 import * as RN from "react-native";
+import type { ValueOf } from "type-fest";
 
 export const colorSystem = {
   current: "currentColor",
@@ -516,6 +518,48 @@ export const { styles, styled, DashProvider, useDash } = createStyles({
   tokens,
   themes,
 });
+
+export function styledMemo<StyleProps extends {}, Props extends {}>(
+  Component: React.ComponentType<Props>,
+  stylesMemo: StyledCallback<
+    Omit<Props, keyof StyleProps> & StyleProps,
+    "style" extends keyof Props ? Extract<Props["style"], {}> : RNStyles,
+    ValueOf<Omit<typeof styles.tokens, "default">>
+  >,
+  areEqual:
+    | (keyof StyleProps)[]
+    | ((
+        [tokens, props]: [
+          typeof styles.tokens.light | typeof styles.tokens.dark,
+          Omit<Props, keyof StyleProps> & StyleProps
+        ],
+        [nextTokens, nextProps]: [
+          typeof styles.tokens.light | typeof styles.tokens.dark,
+          Omit<Props, keyof StyleProps> & StyleProps
+        ]
+      ) => boolean) = tokensAreEqual
+) {
+  return styled<StyleProps, Props>(
+    Component,
+    memoize(
+      stylesMemo,
+      Array.isArray(areEqual)
+        ? areEqual.length === 1
+          ? // hot path for single-length comparisons
+            ([t, p], [nt, np]) => t === nt && p[areEqual[0]] === np[areEqual[1]]
+          : ([t, p], [nt, np]) =>
+              t === nt && areEqual.every((key) => p[key] === np[key])
+        : areEqual
+    )
+  );
+}
+
+export function tokensAreEqual<Props extends {}>(
+  [t]: [typeof styles.tokens.light | typeof styles.tokens.dark, Props],
+  [nt]: [typeof styles.tokens.light | typeof styles.tokens.dark, Props]
+) {
+  return t === nt;
+}
 
 export type AppTokens = typeof tokens;
 export type AppThemes = typeof themes;
