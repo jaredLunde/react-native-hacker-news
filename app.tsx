@@ -1,22 +1,32 @@
 import "react-native-url-polyfill/auto";
 import "intl";
 import "intl/locale-data/jsonp/en";
+import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
-import type { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { registerRootComponent } from "expo";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
 import * as RN from "react-native";
+import { enableScreens } from "react-native-screens";
 import { SWRConfig } from "swr";
-import logo from "@/assets/logo.png";
-import { DashProvider, styledMemo } from "@/dash";
+import { DashProvider, lazyMemo, oneMemo, useDash } from "@/dash";
 import { BrowserModal } from "@/screens/browser-modal";
-import { Home } from "@/screens/home";
-import { Stack } from "@/screens/routers";
+import {
+  AskStack,
+  HomeStack,
+  JobsStack,
+  ShowStack,
+  Tab,
+} from "@/screens/routers";
+import { Stories } from "@/screens/stories";
+import { User } from "@/screens/user";
 
 registerRootComponent(App);
 
 function App() {
+  const colorScheme = RN.useColorScheme();
+  enableScreens(true);
+
   return (
     <SWRConfig
       value={{
@@ -47,74 +57,221 @@ function App() {
         },
       }}
     >
-      <DashProvider>
+      <DashProvider theme={colorScheme as any}>
         <NavigationContainer>
-          <Stack.Navigator
-            screenOptions={{
-              header: Header,
-            }}
-          >
-            <Stack.Screen name="Home" component={Home} />
-            <Stack.Group
-              screenOptions={{ headerShown: false, presentation: "modal" }}
-            >
-              <Stack.Screen name="BrowserModal" component={BrowserModal} />
-            </Stack.Group>
-          </Stack.Navigator>
+          <StatusBar
+            style={
+              colorScheme === "light"
+                ? "dark"
+                : colorScheme === "dark"
+                ? "light"
+                : "auto"
+            }
+          />
+          <Tabs />
         </NavigationContainer>
       </DashProvider>
     </SWRConfig>
   );
 }
 
-function Header(props: NativeStackHeaderProps) {
-  const colorScheme = RN.useColorScheme();
-
+function Tabs() {
   return (
-    <StyledHeader>
-      <StatusBar
-        style={
-          colorScheme === "light"
-            ? "dark"
-            : colorScheme === "dark"
-            ? "light"
-            : "auto"
-        }
-      />
-
-      <LogoContainer>
-        <LogoMark source={logo} />
-        <LogoType>HN</LogoType>
-      </LogoContainer>
-    </StyledHeader>
+    <RN.View style={sceneContainer()}>
+      <Tab.Navigator
+        detachInactiveScreens
+        sceneContainerStyle={sceneContainer()}
+        screenOptions={{ headerShown: false }}
+        tabBar={TabBar}
+      >
+        <Tab.Screen name="Home" component={HomeScreens} />
+        <Tab.Screen name="Show" component={ShowScreens} />
+        <Tab.Screen name="Ask" component={AskScreens} />
+        <Tab.Screen name="Jobs" component={JobsScreens} />
+      </Tab.Navigator>
+    </RN.View>
   );
 }
 
-const StyledHeader = styledMemo(RN.SafeAreaView, (t) => ({
-  backgroundColor: t.color.headerBg,
-}));
-
-const LogoContainer = styledMemo(RN.View, (t) => ({
-  flexDirection: "row",
-  flexWrap: "nowrap",
-  alignItems: "center",
-  justifyContent: "flex-start",
+const sceneContainer = oneMemo<RN.ViewStyle>((t) => ({
+  height: "100%",
   width: "100%",
-  paddingTop: t.space.sm,
-  paddingBottom: t.space.md,
-  paddingRight: t.space.lg,
-  paddingLeft: t.space.lg,
+  backgroundColor: t.color.bodyBg,
 }));
 
-const LogoMark = styledMemo(RN.Image, (t) => ({
-  width: t.type.size.lg,
-  height: t.type.size.lg,
-  borderRadius: t.radius.md,
-  marginRight: t.space.md,
+function TabBar({ state, descriptors, navigation, insets }: BottomTabBarProps) {
+  return (
+    <TabBarBase
+      state={state}
+      descriptors={descriptors}
+      navigation={navigation}
+      insets={insets}
+    />
+  );
+}
+
+function TabBarBase({ state, descriptors, navigation }: BottomTabBarProps) {
+  useDash();
+
+  return (
+    <RN.SafeAreaView style={tabBar()}>
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const label =
+          options.tabBarLabel !== undefined
+            ? options.tabBarLabel
+            : options.title !== undefined
+            ? options.title
+            : route.name;
+
+        const isFocused = state.index === index;
+
+        return (
+          <RN.Pressable
+            key={route.name}
+            accessibilityRole="button"
+            accessibilityState={isFocused ? { selected: true } : {}}
+            accessibilityLabel={options.tabBarAccessibilityLabel}
+            testID={options.tabBarTestID}
+            onPress={() => {
+              const event = navigation.emit({
+                type: "tabPress",
+                target: route.key,
+                canPreventDefault: true,
+              });
+
+              if (!isFocused && !event.defaultPrevented) {
+                // The `merge: true` option makes sure that the params inside
+                // the tab screen are preserved
+                // @ts-expect-error: TODO
+                navigation.navigate({ name: route.name, merge: true });
+              }
+            }}
+            onLongPress={() => {
+              navigation.emit({
+                type: "tabLongPress",
+                target: route.key,
+              });
+            }}
+            style={tabBarTab(isFocused)}
+          >
+            <RN.Text style={tabBarLabel(isFocused)}>{label}</RN.Text>
+          </RN.Pressable>
+        );
+      })}
+    </RN.SafeAreaView>
+  );
+}
+
+const tabBar = oneMemo<RN.ViewStyle>((t) => ({
+  flexDirection: "row",
+  width: "100%",
+  backgroundColor: t.color.headerBg,
+  borderTopWidth: t.borderWidth.hairline,
+  borderTopColor: t.color.accent,
 }));
 
-const LogoType = styledMemo(RN.Text, (t) => ({
-  fontSize: t.type.size.lg,
-  color: t.color.textPrimary,
-  fontWeight: "900",
+const tabBarLabel = lazyMemo<boolean, RN.TextStyle>((isFocused) => (t) => ({
+  color: isFocused ? t.color.primary : t.color.textAccent,
+  fontSize: t.type.size.sm,
+  fontWeight: "700",
+  margin: 0,
+  textAlign: "center",
 }));
+
+const tabBarTab = lazyMemo<boolean, RN.ViewStyle>((isFocused) => (t) => ({
+  borderTopColor: isFocused ? t.color.primary : t.color.headerBg,
+  borderTopWidth: 4,
+  flex: 1,
+  padding: t.space.md,
+  justifyContent: "center",
+  alignItems: "center",
+}));
+
+function HomeScreens() {
+  return (
+    <HomeStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <HomeStack.Screen
+        name="Stories"
+        component={Stories}
+        initialParams={{ filter: "top" }}
+      />
+      <HomeStack.Screen name="User" component={User} />
+      <HomeStack.Group
+        screenOptions={{ headerShown: false, presentation: "modal" }}
+      >
+        <HomeStack.Screen name="BrowserModal" component={BrowserModal} />
+      </HomeStack.Group>
+    </HomeStack.Navigator>
+  );
+}
+
+function ShowScreens() {
+  return (
+    <ShowStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <ShowStack.Screen
+        name="Stories"
+        component={Stories}
+        initialParams={{ filter: "show" }}
+      />
+      <ShowStack.Screen name="User" component={User} />
+      <ShowStack.Group
+        screenOptions={{ headerShown: false, presentation: "modal" }}
+      >
+        <ShowStack.Screen name="BrowserModal" component={BrowserModal} />
+      </ShowStack.Group>
+    </ShowStack.Navigator>
+  );
+}
+
+function AskScreens() {
+  return (
+    <AskStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <AskStack.Screen
+        name="Stories"
+        component={Stories}
+        initialParams={{ filter: "ask" }}
+      />
+      <AskStack.Screen name="User" component={User} />
+      <AskStack.Group
+        screenOptions={{ headerShown: false, presentation: "modal" }}
+      >
+        <AskStack.Screen name="BrowserModal" component={BrowserModal} />
+      </AskStack.Group>
+    </AskStack.Navigator>
+  );
+}
+
+function JobsScreens() {
+  return (
+    <JobsStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <JobsStack.Screen
+        name="Stories"
+        component={Stories}
+        initialParams={{ filter: "job" }}
+      />
+      <JobsStack.Screen name="User" component={User} />
+      <JobsStack.Group
+        screenOptions={{ headerShown: false, presentation: "modal" }}
+      >
+        <JobsStack.Screen name="BrowserModal" component={BrowserModal} />
+      </JobsStack.Group>
+    </JobsStack.Navigator>
+  );
+}

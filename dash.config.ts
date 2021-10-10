@@ -1,12 +1,13 @@
 import { createStyles } from "@dash-ui/react-native";
 import type {
   RNStyles,
+  StyleCallback,
   StyledCallback,
-  StyledValue,
+  StyleMap,
 } from "@dash-ui/react-native";
 import memoize from "@essentials/memoize-one";
 import * as RN from "react-native";
-import type { ValueOf } from "type-fest";
+import type { JsonValue, ValueOf } from "type-fest";
 
 export const colorSystem = {
   current: "currentColor",
@@ -482,6 +483,7 @@ export const themes: Record<
   "light" | "dark",
   {
     color: {
+      primary: RN.ColorValue;
       textPrimary: RN.ColorValue;
       textAccent: RN.ColorValue;
       bodyBg: RN.ColorValue;
@@ -494,6 +496,7 @@ export const themes: Record<
 > = {
   light: {
     color: {
+      primary: colorSystem.orange500,
       textPrimary: colorSystem.black,
       textAccent: colorSystem.warmGray500,
       bodyBg: colorSystem.white,
@@ -506,6 +509,7 @@ export const themes: Record<
   },
   dark: {
     color: {
+      primary: colorSystem.orange500,
       textPrimary: colorSystem.white,
       textAccent: colorSystem.warmGray400,
       bodyBg: colorSystem.warmGray900,
@@ -563,6 +567,42 @@ export function tokensAreEqual<Props extends {}>(
   [nt]: [AppTokens] | [AppTokens, Props]
 ) {
   return t === nt;
+}
+
+export function stylesMemo<S extends RNStyles>(
+  styleMap: StyleMap<S, AppTokens>
+) {
+  const memoMap: StyleMap<S, AppTokens> = {};
+
+  for (const key in styleMap) {
+    memoMap[key] =
+      typeof styleMap[key] === "function"
+        ? memoize(styleMap[key] as StyleCallback<S, AppTokens>, tokensAreEqual)
+        : styleMap[key];
+  }
+
+  return styles(memoMap as any);
+}
+
+export function oneMemo<Style extends RNStyles>(
+  callbackStyle: StyleCallback<Style, AppTokens>
+) {
+  return styles.one(memoize(callbackStyle, tokensAreEqual));
+}
+
+export function clsMemo<Style extends RNStyles>(
+  callbackStyle: StyleCallback<Style, AppTokens>
+) {
+  return styles.cls(memoize(callbackStyle, tokensAreEqual));
+}
+
+export function lazyMemo<
+  Value extends JsonValue,
+  Style extends RNStyles = RNStyles
+>(lazyStyle: (value: Value) => StyleCallback<Style, AppTokens>) {
+  return styles.lazy((value: Value) =>
+    memoize(lazyStyle(value), tokensAreEqual)
+  );
 }
 
 export type AppTokens = typeof styles.tokens.light | typeof styles.tokens.dark;

@@ -34,3 +34,11 @@ yarn && yarn ios
 ---
 
 <img src='.readme/light-mode-web-browser.png' width=300> <img src='.readme/dark-mode-web-browser.png' width=300>
+
+---
+
+<img src='.readme/light-mode-user.png' width=300> <img src='.readme/dark-mode-user.png' width=300>
+
+---
+
+<img src='.readme/light-mode-ask-hn.png' width=300> <img src='.readme/dark-mode-ask-hn.png' width=300>

@@ -11,31 +11,34 @@ import { Share, useWindowDimensions } from "react-native";
 import type { WebViewNavigation } from "react-native-webview";
 import { WebView } from "react-native-webview";
 import { Icon } from "@/components/icon";
-import { responsiveSize, styledMemo, useDash } from "@/dash";
-import type { StackParamList } from "@/screens/routers";
+import { oneMemo, responsiveSize, styles, useDash } from "@/dash";
+import type { HomeStackParamList } from "@/screens/routers";
 
 export function BrowserModal({ navigation, route }: BrowserModalProps) {
   const {
     tokens: { color },
   } = useDash();
   const dimensions = useWindowDimensions();
-  const ref = React.useRef<WebViewRef>(null);
+  const ref = React.useRef<WebView>(null);
   const [navigationState, setNavigationState] =
     React.useState<WebViewNavigation | null>(null);
 
   return (
-    <Container>
-      <ModalHeader>
-        <CloseButton onPress={() => navigation.goBack()}>
-          <Icon name="x" size={20} color="textAccent" />
-        </CloseButton>
+    <RN.View style={container()}>
+      <RN.View style={modalHeader()}>
+        <RN.TouchableOpacity
+          style={closeButton()}
+          onPress={() => navigation.goBack()}
+        >
+          <Icon name="x" size={18} color="textAccent" />
+        </RN.TouchableOpacity>
 
-        <Title numberOfLines={1} ellipsizeMode="tail">
+        <RN.Text style={title()} numberOfLines={1} ellipsizeMode="tail">
           {route.params.title || ""}
-        </Title>
-      </ModalHeader>
+        </RN.Text>
+      </RN.View>
 
-      <BrowserView
+      <WebView
         ref={ref}
         originWhitelist={["*"]}
         allowsLinkPreview
@@ -45,27 +48,34 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
         enableApplePay
         onNavigationStateChange={setNavigationState}
         source={{ uri: route.params.url }}
-        width={dimensions.width}
+        style={browser(dimensions.width)}
       />
 
-      <Footer>
-        <FooterButton onPress={() => ref.current?.goBack()}>
+      <RN.SafeAreaView style={footer()}>
+        <RN.TouchableOpacity
+          style={footerButton()}
+          onPress={() => ref.current?.goBack()}
+        >
           <Icon
             name="chevron-left"
             size={24}
             color={navigationState?.canGoBack ? "textPrimary" : "textAccent"}
           />
-        </FooterButton>
+        </RN.TouchableOpacity>
 
-        <FooterButton onPress={() => ref.current?.goForward()}>
+        <RN.TouchableOpacity
+          style={footerButton()}
+          onPress={() => ref.current?.goForward()}
+        >
           <Icon
             name="chevron-right"
             size={24}
             color={navigationState?.canGoBack ? "textPrimary" : "textAccent"}
           />
-        </FooterButton>
+        </RN.TouchableOpacity>
 
-        <FooterButton
+        <RN.TouchableOpacity
+          style={footerButton()}
           onPress={() =>
             Share.share({
               title: navigationState?.title ?? route.params.title,
@@ -83,9 +93,10 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
               color: color.textPrimary,
             }
           )}
-        </FooterButton>
+        </RN.TouchableOpacity>
 
-        <FooterButton
+        <RN.TouchableOpacity
+          style={footerButton()}
           onPress={() =>
             Linking.openURL(navigationState?.url ?? route.params.url)
           }
@@ -95,20 +106,20 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
             size={responsiveSize(20)}
             color={color.textPrimary}
           />
-        </FooterButton>
-      </Footer>
-    </Container>
+        </RN.TouchableOpacity>
+      </RN.SafeAreaView>
+    </RN.View>
   );
 }
 
-const Container = styledMemo(RN.View, (t) => ({
+const container = oneMemo<RN.ViewStyle>((t) => ({
   flex: 1,
   alignItems: "center",
   justifyContent: "center",
   backgroundColor: t.color.bodyBg,
 }));
 
-const ModalHeader = styledMemo(RN.View, (t) => ({
+const modalHeader = oneMemo<RN.ViewStyle>((t) => ({
   flexDirection: "row",
   alignItems: "center",
   width: "100%",
@@ -117,33 +128,29 @@ const ModalHeader = styledMemo(RN.View, (t) => ({
   borderBottomWidth: t.borderWidth.hairline,
 }));
 
-const CloseButton = styledMemo(RN.TouchableOpacity, (t) => ({
+const closeButton = oneMemo<RN.ViewStyle>((t) => ({
   alignItems: "center",
   justifyContent: "center",
-  width: 20 + t.space.sm * 2,
-  height: 20 + t.space.sm * 2,
+  width: 18 + t.space.sm * 2,
+  height: 18 + t.space.sm * 2,
   borderRadius: t.radius.full,
   marginRight: t.space.md,
   backgroundColor: t.color.accentLight,
 }));
 
-const Title = styledMemo(RN.Text, (t) => ({
+const title = oneMemo<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   fontSize: t.type.size["xs"],
   fontWeight: "700",
   flex: 1,
 }));
 
-const BrowserView = styledMemo(
-  WebView,
-  (_, { width }: { width: number }) => ({
-    width,
-    height: "100%",
-  }),
-  ["width"]
-);
+const browser = styles.lazy((width: number) => ({
+  width,
+  height: "100%",
+}));
 
-const Footer = styledMemo(RN.SafeAreaView, (t) => ({
+const footer = oneMemo((t) => ({
   width: "100%",
   flexDirection: "row",
   alignItems: "center",
@@ -152,16 +159,10 @@ const Footer = styledMemo(RN.SafeAreaView, (t) => ({
   borderTopWidth: t.borderWidth.hairline,
 }));
 
-const FooterButton = styledMemo(RN.TouchableOpacity, (t) => ({
+const footerButton = oneMemo((t) => ({
   padding: t.space.lg,
   paddingTop: t.space.md,
 }));
 
 export interface BrowserModalProps
-  extends NativeStackScreenProps<StackParamList, "BrowserModal"> {}
-
-type WebViewRef = {
-  goBack(): void;
-  goForward(): void;
-  postMessage(message: string): void;
-};
+  extends NativeStackScreenProps<HomeStackParamList, "BrowserModal"> {}

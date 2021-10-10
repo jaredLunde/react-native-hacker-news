@@ -18,6 +18,7 @@ const config: ExpoConfig = {
   assetBundlePatterns: ["**/*"],
   ios: {
     supportsTablet: true,
+    bundleIdentifier: "com.jaredlunde.hn",
   },
   android: {
     adaptiveIcon: {
