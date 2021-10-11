@@ -58,16 +58,16 @@ function App() {
       }}
     >
       <DashProvider theme={colorScheme as any}>
+        <StatusBar
+          style={
+            colorScheme === "light"
+              ? "dark"
+              : colorScheme === "dark"
+              ? "light"
+              : "auto"
+          }
+        />
         <NavigationContainer>
-          <StatusBar
-            style={
-              colorScheme === "light"
-                ? "dark"
-                : colorScheme === "dark"
-                ? "light"
-                : "auto"
-            }
-          />
           <Tabs />
         </NavigationContainer>
       </DashProvider>

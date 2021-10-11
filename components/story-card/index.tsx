@@ -45,7 +45,7 @@ export const StoryCard = React.memo(
       return null;
     }
 
-    return "text" in story.data && story.data.type === "story" ? (
+    return !("url" in story.data) && story.data.type === "story" ? (
       <AskStory data={story.data} index={index} />
     ) : story.data.type === "job" ? (
       <JobStory data={story.data} index={index} />
@@ -323,7 +323,37 @@ function CommentStory({
   data: HackerNewsComment;
   index: number;
 }) {
-  return null;
+  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+
+  return (
+    <RN.View style={storyContainer(index)}>
+      <RN.TouchableWithoutFeedback
+        onPress={() =>
+          navigation.navigate("BrowserModal", {
+            title: "",
+            url: "",
+          })
+        }
+      >
+        <RN.Text ellipsizeMode="tail" style={storyText()} numberOfLines={4}>
+          {stripTags(htmlEntities.decode(data.text), [], " ")}
+        </RN.Text>
+      </RN.TouchableWithoutFeedback>
+
+      <RN.View>
+        <RN.View style={byLine}>
+          <RN.TouchableWithoutFeedback
+            onPress={() => navigation.navigate("User", { id: data.by })}
+          >
+            <RN.Text style={byStyle()}>@{data.by}</RN.Text>
+          </RN.TouchableWithoutFeedback>
+          <RN.Text style={agoStyle()}>
+            {ago.format(new Date(data.time * 1000), "mini")}
+          </RN.Text>
+        </RN.View>
+      </RN.View>
+    </RN.View>
+  );
 }
 
 const storyContainer = lazyMemo<number, RN.ViewStyle>((index) => (t) => ({

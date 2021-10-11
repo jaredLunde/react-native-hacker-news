@@ -97,7 +97,6 @@ export type HackerNewsAsk = Pick<
   | "time"
   | "title"
   | "text"
-  | "url"
   | "deleted"
   | "dead"
 > & {
