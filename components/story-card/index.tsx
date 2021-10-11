@@ -1,19 +1,28 @@
 import type { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
+import * as htmlEntities from "html-entities";
 import * as React from "react";
 import * as RN from "react-native";
+import stripTags from "striptags";
 import useSWR from "swr";
 import { Skeleton } from "@/components/skeleton";
 import { lazyMemo, oneMemo, useDash } from "@/dash";
 import { useMetadata } from "@/hooks/use-metadata";
 import type { HomeStackParamList } from "@/screens/routers";
-import type { HackerNewsStory } from "@/types/hn-api";
+import type {
+  HackerNewsAsk,
+  HackerNewsComment,
+  HackerNewsItem,
+  HackerNewsJob,
+  HackerNewsPoll,
+  HackerNewsStory,
+} from "@/types/hn-api";
 import { ago } from "@/utils/ago";
 
-export const Story = React.memo(
-  function Story({ index, id }: { index: number; id: number | null }) {
+export const StoryCard = React.memo(
+  function StoryCard({ index, id }: { index: number; id: number | null }) {
     useDash();
-    const story = useSWR<HackerNewsStory>(
+    const story = useSWR<HackerNewsItem>(
       id === -1
         ? null
         : `https://hacker-news.firebaseio.com/v0/item/${id}.json`,
@@ -23,9 +32,6 @@ export const Story = React.memo(
           headers: { "Content-Type": "application/json" },
         }).then((res) => res.json())
     );
-    const url = new URL(story.data?.url || "http://localhost");
-    const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
-    const metadata = useMetadata(url);
 
     if (!story.data) {
       return (
@@ -35,49 +41,41 @@ export const Story = React.memo(
       );
     }
 
-    const data = story.data;
+    if (story.data.deleted || story.data.dead) {
+      return null;
+    }
 
+    return "text" in story.data && story.data.type === "story" ? (
+      <AskStory data={story.data} index={index} />
+    ) : story.data.type === "job" ? (
+      <JobStory data={story.data} index={index} />
+    ) : story.data.type === "comment" ? (
+      <CommentStory data={story.data} index={index} />
+    ) : story.data.type === "poll" ? (
+      <PollStory data={story.data} index={index} />
+    ) : (
+      <Story data={story.data} index={index} />
+    );
+  },
+  (prev, next) => prev.id === next.id && prev.index === next.index
+);
+
+function Story({ data, index }: { data: HackerNewsStory; index: number }) {
+  const url = new URL(data.url);
+  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const metadata = useMetadata(url);
+
+  if (!metadata) {
     return (
       <RN.View style={storyContainer(index)}>
-        {metadata?.image ? (
-          <RN.TouchableWithoutFeedback
-            onPress={() =>
-              navigation.navigate("BrowserModal", {
-                title: data.title,
-                url: url.toString(),
-              })
-            }
-          >
-            <RN.Image
-              style={storyImage(index)}
-              source={{ uri: metadata?.image }}
-            />
-          </RN.TouchableWithoutFeedback>
-        ) : null}
+        <Skeleton style={storySkeleton(index)} />
+      </RN.View>
+    );
+  }
 
-        {url.host !== "localhost" && (
-          <RN.TouchableWithoutFeedback
-            onPress={() =>
-              navigation.navigate("BrowserModal", {
-                title: metadata?.applicationName || url.hostname,
-                url: url.origin,
-              })
-            }
-          >
-            <RN.View style={hostContainerStyle}>
-              <RN.Image style={favicon()} source={{ uri: metadata?.favicon }} />
-
-              <RN.Text
-                style={hostname()}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {metadata?.applicationName || url.host.replace(/^www\./, "")}
-              </RN.Text>
-            </RN.View>
-          </RN.TouchableWithoutFeedback>
-        )}
-
+  return (
+    <RN.View style={storyContainer(index)}>
+      {metadata?.image ? (
         <RN.TouchableWithoutFeedback
           onPress={() =>
             navigation.navigate("BrowserModal", {
@@ -86,39 +84,247 @@ export const Story = React.memo(
             })
           }
         >
-          <RN.Text
-            style={storyTitle(index)}
-            adjustsFontSizeToFit
-            numberOfLines={
-              index === 0 ? 3 : index < 5 && metadata?.image ? 4 : 6
-            }
-          >
-            {data.title}
-          </RN.Text>
+          <RN.Image
+            style={storyImage(index)}
+            source={{ uri: metadata?.image }}
+          />
         </RN.TouchableWithoutFeedback>
+      ) : null}
 
-        <RN.View>
-          <RN.View style={byLine}>
-            <RN.TouchableWithoutFeedback
-              onPress={() => navigation.navigate("User", { id: data.by })}
-            >
-              <RN.Text style={byStyle()}>@{data.by}</RN.Text>
-            </RN.TouchableWithoutFeedback>
-            <RN.Text style={agoStyle()}>
-              {ago.format(new Date(data.time * 1000), "mini")}
+      <RN.TouchableWithoutFeedback
+        onPress={() =>
+          navigation.navigate("BrowserModal", {
+            title: metadata.applicationName || url.hostname,
+            url: url.origin,
+          })
+        }
+      >
+        <RN.View style={hostContainerStyle}>
+          <RN.Image style={favicon()} source={{ uri: metadata.favicon }} />
+
+          <RN.Text style={hostname()} numberOfLines={1} ellipsizeMode="tail">
+            {metadata.applicationName || url.host.replace(/^www\./, "")}
+          </RN.Text>
+        </RN.View>
+      </RN.TouchableWithoutFeedback>
+
+      <RN.TouchableWithoutFeedback
+        onPress={() =>
+          navigation.navigate("BrowserModal", {
+            title: data.title,
+            url: url.toString(),
+          })
+        }
+      >
+        <RN.Text
+          style={storyTitle(index)}
+          adjustsFontSizeToFit
+          numberOfLines={
+            index === 0 && !metadata.image
+              ? 5
+              : index < 5 && metadata.image
+              ? 4
+              : 7
+          }
+        >
+          {data.title}
+        </RN.Text>
+      </RN.TouchableWithoutFeedback>
+
+      <RN.View>
+        <RN.View style={byLine}>
+          <RN.TouchableWithoutFeedback
+            onPress={() => navigation.navigate("User", { id: data.by })}
+          >
+            <RN.Text style={byStyle()}>@{data.by}</RN.Text>
+          </RN.TouchableWithoutFeedback>
+          <RN.Text style={agoStyle()}>
+            {ago.format(new Date(data.time * 1000), "mini")}
+          </RN.Text>
+        </RN.View>
+
+        <RN.Text style={footerText()}>
+          ⇧{data.score} &bull;{" "}
+          <RN.Text style={commentsStyle}>{data.descendants} comments</RN.Text>
+        </RN.Text>
+      </RN.View>
+    </RN.View>
+  );
+}
+
+function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
+  const url = data.url ? new URL(data.url) : undefined;
+  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const metadata = useMetadata(url);
+
+  if (!metadata) {
+    return (
+      <RN.View style={storyContainer(index)}>
+        <Skeleton style={storySkeleton(index)} />
+      </RN.View>
+    );
+  }
+
+  return (
+    <RN.View style={storyContainer(index)}>
+      {url && metadata?.image ? (
+        <RN.TouchableWithoutFeedback
+          onPress={() =>
+            navigation.navigate("BrowserModal", {
+              title: data.title,
+              url: url.toString(),
+            })
+          }
+        >
+          <RN.Image
+            style={storyImage(index)}
+            source={{ uri: metadata?.image }}
+          />
+        </RN.TouchableWithoutFeedback>
+      ) : null}
+
+      {url && (
+        <RN.TouchableWithoutFeedback
+          onPress={() =>
+            navigation.navigate("BrowserModal", {
+              title: metadata.applicationName || url.hostname,
+              url: url.origin,
+            })
+          }
+        >
+          <RN.View style={hostContainerStyle}>
+            <RN.Image style={favicon()} source={{ uri: metadata.favicon }} />
+
+            <RN.Text style={hostname()} numberOfLines={1} ellipsizeMode="tail">
+              {metadata.applicationName || url.host.replace(/^www\./, "")}
             </RN.Text>
           </RN.View>
+        </RN.TouchableWithoutFeedback>
+      )}
 
-          <RN.Text style={footerText()}>
-            ⇧{data.score} &bull;{" "}
-            <RN.Text style={commentsStyle}>{data.descendants} comments</RN.Text>
+      <RN.TouchableWithoutFeedback
+        onPress={() =>
+          navigation.navigate("BrowserModal", {
+            title: data.title,
+            url: !url ? "" : url.toString(),
+          })
+        }
+      >
+        <RN.Text
+          style={storyTitle(index)}
+          adjustsFontSizeToFit
+          numberOfLines={
+            index === 0 && !metadata.image
+              ? 5
+              : index < 5 && metadata.image
+              ? 4
+              : 7
+          }
+        >
+          {data.title}
+        </RN.Text>
+      </RN.TouchableWithoutFeedback>
+
+      {data.text && (
+        <RN.TouchableWithoutFeedback
+          onPress={() =>
+            navigation.navigate("BrowserModal", {
+              title: data.title,
+              url: "",
+            })
+          }
+        >
+          <RN.Text ellipsizeMode="tail" style={storyText()} numberOfLines={4}>
+            {stripTags(htmlEntities.decode(data.text), [], " ")}
+          </RN.Text>
+        </RN.TouchableWithoutFeedback>
+      )}
+
+      <RN.View>
+        <RN.View style={byLine}>
+          <RN.TouchableWithoutFeedback
+            onPress={() => navigation.navigate("User", { id: data.by })}
+          >
+            <RN.Text style={byStyle()}>@{data.by}</RN.Text>
+          </RN.TouchableWithoutFeedback>
+          <RN.Text style={agoStyle()}>
+            {ago.format(new Date(data.time * 1000), "mini")}
           </RN.Text>
         </RN.View>
       </RN.View>
-    );
-  },
-  (prev, next) => prev.id === next.id && prev.index === next.index
-);
+    </RN.View>
+  );
+}
+
+function AskStory({ data, index }: { data: HackerNewsAsk; index: number }) {
+  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+
+  return (
+    <RN.View style={storyContainer(index)}>
+      <RN.TouchableWithoutFeedback
+        onPress={() =>
+          navigation.navigate("BrowserModal", {
+            title: data.title,
+            url: "",
+          })
+        }
+      >
+        <RN.Text
+          style={storyTitle(index)}
+          adjustsFontSizeToFit
+          numberOfLines={index === 0 ? 5 : 7}
+        >
+          {data.title}
+        </RN.Text>
+      </RN.TouchableWithoutFeedback>
+
+      <RN.TouchableWithoutFeedback
+        onPress={() =>
+          navigation.navigate("BrowserModal", {
+            title: data.title,
+            url: "",
+          })
+        }
+      >
+        <RN.Text ellipsizeMode="tail" style={storyText()} numberOfLines={4}>
+          {stripTags(htmlEntities.decode(data.text), [], " ")}
+        </RN.Text>
+      </RN.TouchableWithoutFeedback>
+
+      <RN.View>
+        <RN.View style={byLine}>
+          <RN.TouchableWithoutFeedback
+            onPress={() => navigation.navigate("User", { id: data.by })}
+          >
+            <RN.Text style={byStyle()}>@{data.by}</RN.Text>
+          </RN.TouchableWithoutFeedback>
+          <RN.Text style={agoStyle()}>
+            {ago.format(new Date(data.time * 1000), "mini")}
+          </RN.Text>
+        </RN.View>
+
+        <RN.Text style={footerText()}>
+          ⇧{data.score} &bull;{" "}
+          <RN.Text style={commentsStyle}>{data.descendants} comments</RN.Text>
+        </RN.Text>
+      </RN.View>
+    </RN.View>
+  );
+}
+
+function PollStory({ data, index }: { data: HackerNewsPoll; index: number }) {
+  return null;
+}
+
+function CommentStory({
+  data,
+  index,
+}: {
+  data: HackerNewsComment;
+  index: number;
+}) {
+  return null;
+}
 
 const storyContainer = lazyMemo<number, RN.ViewStyle>((index) => (t) => ({
   width: index === 0 || index > 4 ? "100%" : "50%",
@@ -164,9 +370,18 @@ const hostname = oneMemo<RN.TextStyle>((t) => ({
 
 const storyTitle = lazyMemo<number, RN.TextStyle>((index: number) => (t) => ({
   color: t.color.textPrimary,
-  fontSize: t.type.size[index === 0 ? "6xl" : index < 5 ? "lg" : "sm"],
+  fontSize: t.type.size[index === 0 ? "6xl" : index < 5 ? "base" : "sm"],
   fontWeight: index === 0 ? "900" : index < 5 ? "800" : "700",
   letterSpacing: index < 4 ? t.type.tracking.tighter : t.type.tracking.tight,
+  paddingTop: t.space.sm,
+  paddingBottom: t.space.sm,
+}));
+
+const storyText = oneMemo<RN.TextStyle>((t) => ({
+  color: t.color.textAccent,
+  fontSize: t.type.size.xs,
+  fontWeight: "400",
+  letterSpacing: t.type.tracking.tight,
   paddingTop: t.space.sm,
   paddingBottom: t.space.sm,
 }));

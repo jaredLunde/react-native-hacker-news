@@ -3,7 +3,7 @@ import * as React from "react";
 import * as RN from "react-native";
 import useSWR from "swr";
 import { Header } from "@/components/header";
-import { Story } from "@/components/story-card";
+import { StoryCard } from "@/components/story-card";
 import { oneMemo, useDash } from "@/dash";
 import type { HomeStackParamList } from "@/screens/routers";
 import type { HackerNewsUser } from "@/types/hn-api";
@@ -57,7 +57,9 @@ function keyExtractor(item: number, index: number) {
 }
 
 function renderFlatListItem({ item, index }: { item: number; index: number }) {
-  return <Story key={item === -1 ? index : item} index={index + 5} id={item} />;
+  return (
+    <StoryCard key={item === -1 ? index : item} index={index + 5} id={item} />
+  );
 }
 
 const container = oneMemo<RN.ViewStyle>((t) => ({

@@ -1,13 +1,52 @@
 import { parse as parseHtml } from "node-html-parser";
+import * as React from "react";
 import useSWR from "swr";
 import memoize from "trie-memoize";
 
-export function useMetadata(url: URL) {
+export function useMetadata(url: URL | undefined) {
+  const [timedOut, setTimedOut] = React.useState(false);
+  const didUnsubscribe = React.useRef(false);
   const html = useSWR(
-    url.host && url.host !== "localhost" ? url.toString() : null,
-    (key) => fetch(key).then((res) => res.text())
+    url?.host ? url.toString() : null,
+    (key) =>
+      fetch(key).then((res) => {
+        if (res.headers.get("content-type")?.includes("text/html")) {
+          return res.text();
+        }
+
+        return null;
+      }),
+    {
+      shouldRetryOnError: false,
+      onLoadingSlow: () => !didUnsubscribe.current && setTimedOut(true),
+    }
   );
-  const parsedHtml = html.data ? parse(html.data) : undefined;
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      if (html.data || html.error) {
+        return;
+      }
+
+      !didUnsubscribe.current && setTimedOut(true);
+    }, 4000);
+
+    return () => {
+      didUnsubscribe.current = true;
+    };
+  }, []);
+
+  const parsedHtml =
+    typeof html.data === "string" ? parse(html.data) : html.data;
+
+  if (
+    !url?.host ||
+    html.error ||
+    parsedHtml === null ||
+    (!parsedHtml && timedOut)
+  ) {
+    return { favicon: undefined, image: undefined, applicationName: undefined };
+  }
 
   if (parsedHtml) {
     return {

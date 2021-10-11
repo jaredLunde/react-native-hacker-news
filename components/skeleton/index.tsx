@@ -10,12 +10,12 @@ export function Skeleton(props: SkeletonProps) {
       RN.Animated.sequence([
         RN.Animated.timing(fadeAnim, {
           toValue: 0.5,
-          duration: 1000,
+          duration: 670,
           useNativeDriver: true,
         }),
         RN.Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 1000,
+          duration: 670,
           useNativeDriver: true,
         }),
       ])
@@ -26,7 +26,11 @@ export function Skeleton(props: SkeletonProps) {
   return (
     <RN.Animated.View
       {...props}
-      style={[skeleton(props.variant), props.style, { opacity: fadeAnim }]}
+      style={[
+        skeleton(props.variant ?? "rect"),
+        props.style,
+        { opacity: fadeAnim },
+      ]}
     />
   );
 }

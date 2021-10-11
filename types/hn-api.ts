@@ -1,9 +1,9 @@
 export type HackerNewsItem =
   | HackerNewsStory
   | HackerNewsAsk
+  | HackerNewsJob
   | HackerNewsComment
-  | HackerNewsPoll
-  | HackerNewsPollOpt;
+  | HackerNewsPoll;
 
 export type HackerNewsItemBase = {
   /**
@@ -66,14 +66,23 @@ export type HackerNewsItemBase = {
 
 export type HackerNewsStory = Pick<
   HackerNewsItemBase,
-  "by" | "descendants" | "id" | "kids" | "score" | "time" | "title" | "url"
+  | "by"
+  | "descendants"
+  | "id"
+  | "kids"
+  | "score"
+  | "time"
+  | "title"
+  | "url"
+  | "deleted"
+  | "dead"
 > & {
   type: "story";
 };
 
 export type HackerNewsComment = Pick<
   HackerNewsItemBase,
-  "by" | "id" | "kids" | "parent" | "time" | "text"
+  "by" | "id" | "kids" | "parent" | "time" | "text" | "deleted" | "dead"
 > & {
   type: "comment";
 };
@@ -89,13 +98,15 @@ export type HackerNewsAsk = Pick<
   | "title"
   | "text"
   | "url"
+  | "deleted"
+  | "dead"
 > & {
   type: "story";
 };
 
 export type HackerNewsJob = Pick<
   HackerNewsItemBase,
-  "by" | "id" | "score" | "time" | "title" | "text" | "url"
+  "by" | "id" | "score" | "time" | "title" | "text" | "url" | "deleted" | "dead"
 > & {
   type: "job";
 };
@@ -111,13 +122,23 @@ export type HackerNewsPoll = Pick<
   | "time"
   | "title"
   | "text"
+  | "deleted"
+  | "dead"
 > & {
   type: "poll";
 };
 
 export type HackerNewsPollOpt = Pick<
   HackerNewsItemBase,
-  "by" | "id" | "poll" | "score" | "time" | "title" | "text"
+  | "by"
+  | "id"
+  | "poll"
+  | "score"
+  | "time"
+  | "title"
+  | "text"
+  | "deleted"
+  | "dead"
 > & {
   type: "pollopt";
 };

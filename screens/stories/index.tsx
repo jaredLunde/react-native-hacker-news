@@ -3,7 +3,7 @@ import * as React from "react";
 import * as RN from "react-native";
 import useSWR from "swr";
 import { Header } from "@/components/header";
-import { Story } from "@/components/story-card";
+import { StoryCard } from "@/components/story-card";
 import { oneMemo, useDash } from "@/dash";
 import type { HomeStackParamList } from "@/screens/routers";
 
@@ -58,7 +58,7 @@ export function Stories(props: StoriesProps) {
           onRefresh={() => stories.mutate()}
         />
       }
-      data={flatListData ?? []}
+      data={flatListData ?? fauxFlatStories}
       keyExtractor={keyExtractor}
       initialNumToRender={4}
       maxToRenderPerBatch={5}
@@ -71,17 +71,20 @@ export function Stories(props: StoriesProps) {
 }
 
 const fauxStories = Array.from<number>({ length: 12 }).fill(-1);
+const fauxFlatStories = Array.from<number>({ length: 3 }).fill(-1);
 
-function keyExtractor(item: number) {
-  return item.toString();
+function keyExtractor(item: number, index: number) {
+  return item === -1 ? index.toString() : item.toString();
 }
 
 function renderItem(item: number, index: number) {
-  return <Story key={item === -1 ? index : item} index={index} id={item} />;
+  return <StoryCard key={item === -1 ? index : item} index={index} id={item} />;
 }
 
 function renderFlatListItem({ item, index }: { item: number; index: number }) {
-  return <Story key={item} index={index + 5} id={item} />;
+  return (
+    <StoryCard key={item === -1 ? index : item} index={index + 5} id={item} />
+  );
 }
 
 const container = oneMemo<RN.ViewStyle>((t) => ({
