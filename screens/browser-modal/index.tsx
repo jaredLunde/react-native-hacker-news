@@ -12,7 +12,7 @@ import type { WebViewNavigation } from "react-native-webview";
 import { WebView } from "react-native-webview";
 import { Icon } from "@/components/icon";
 import { oneMemo, responsiveSize, styles, useDash } from "@/dash";
-import type { HomeStackParamList } from "@/screens/routers";
+import type { StackParamList } from "@/screens/routers";
 
 export function BrowserModal({ navigation, route }: BrowserModalProps) {
   const {
@@ -145,12 +145,12 @@ const title = oneMemo<RN.TextStyle>((t) => ({
   flex: 1,
 }));
 
-const browser = styles.lazy((width: number) => ({
+const browser = styles.lazy<number, RN.ViewStyle>((width) => ({
   width,
   height: "100%",
 }));
 
-const footer = oneMemo((t) => ({
+const footer = oneMemo<RN.ViewStyle>((t) => ({
   width: "100%",
   flexDirection: "row",
   alignItems: "center",
@@ -159,10 +159,10 @@ const footer = oneMemo((t) => ({
   borderTopWidth: t.borderWidth.hairline,
 }));
 
-const footerButton = oneMemo((t) => ({
+const footerButton = oneMemo<RN.ViewStyle>((t) => ({
   padding: t.space.lg,
   paddingTop: t.space.md,
 }));
 
 export interface BrowserModalProps
-  extends NativeStackScreenProps<HomeStackParamList, "BrowserModal"> {}
+  extends NativeStackScreenProps<StackParamList, "BrowserModal"> {}

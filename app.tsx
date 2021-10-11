@@ -19,6 +19,7 @@ import {
   Tab,
 } from "@/screens/routers";
 import { Stories } from "@/screens/stories";
+import { ThreadModal } from "@/screens/thread-modal";
 import { User } from "@/screens/user";
 
 registerRootComponent(App);
@@ -205,6 +206,7 @@ function HomeScreens() {
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
         <HomeStack.Screen name="BrowserModal" component={BrowserModal} />
+        <HomeStack.Screen name="ThreadModal" component={ThreadModal} />
       </HomeStack.Group>
     </HomeStack.Navigator>
   );
@@ -227,6 +229,7 @@ function ShowScreens() {
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
         <ShowStack.Screen name="BrowserModal" component={BrowserModal} />
+        <ShowStack.Screen name="ThreadModal" component={ThreadModal} />
       </ShowStack.Group>
     </ShowStack.Navigator>
   );
@@ -249,6 +252,7 @@ function AskScreens() {
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
         <AskStack.Screen name="BrowserModal" component={BrowserModal} />
+        <AskStack.Screen name="ThreadModal" component={ThreadModal} />
       </AskStack.Group>
     </AskStack.Navigator>
   );
@@ -271,6 +275,7 @@ function JobsScreens() {
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
         <JobsStack.Screen name="BrowserModal" component={BrowserModal} />
+        <JobsStack.Screen name="ThreadModal" component={ThreadModal} />
       </JobsStack.Group>
     </JobsStack.Navigator>
   );

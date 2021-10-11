@@ -5,11 +5,11 @@ import * as RN from "react-native";
 import logo from "@/assets/logo.png";
 import { Icon } from "@/components/icon";
 import { oneMemo, styles, useDash } from "@/dash";
-import type { HomeStackParamList } from "@/screens/routers";
+import type { StackParamList } from "@/screens/routers";
 
 export function Header() {
   useDash();
-  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
   const { routes, index } = navigation.getState();
   const route = routes[index];
   const date = new Intl.DateTimeFormat("en-US", {

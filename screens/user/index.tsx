@@ -5,7 +5,7 @@ import useSWR from "swr";
 import { Header } from "@/components/header";
 import { StoryCard } from "@/components/story-card";
 import { oneMemo, useDash } from "@/dash";
-import type { HomeStackParamList } from "@/screens/routers";
+import type { StackParamList } from "@/screens/routers";
 import type { HackerNewsUser } from "@/types/hn-api";
 
 export function User(props: UserProps) {
@@ -69,4 +69,4 @@ const container = oneMemo<RN.ViewStyle>((t) => ({
 }));
 
 export interface UserProps
-  extends NativeStackScreenProps<HomeStackParamList, "User"> {}
+  extends NativeStackScreenProps<StackParamList, "User"> {}

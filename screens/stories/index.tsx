@@ -5,7 +5,7 @@ import useSWR from "swr";
 import { Header } from "@/components/header";
 import { StoryCard } from "@/components/story-card";
 import { oneMemo, useDash } from "@/dash";
-import type { HomeStackParamList } from "@/screens/routers";
+import type { StackParamList } from "@/screens/routers";
 
 export function Stories(props: StoriesProps) {
   useDash();
@@ -99,4 +99,4 @@ const listStyle: RN.ViewStyle = {
 };
 
 export interface StoriesProps
-  extends NativeStackScreenProps<HomeStackParamList, "Stories"> {}
+  extends NativeStackScreenProps<StackParamList, "Stories"> {}

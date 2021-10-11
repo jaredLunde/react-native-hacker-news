@@ -8,7 +8,7 @@ import useSWR from "swr";
 import { Skeleton } from "@/components/skeleton";
 import { lazyMemo, oneMemo, useDash } from "@/dash";
 import { useMetadata } from "@/hooks/use-metadata";
-import type { HomeStackParamList } from "@/screens/routers";
+import type { StackParamList } from "@/screens/routers";
 import type {
   HackerNewsAsk,
   HackerNewsComment,
@@ -62,7 +62,7 @@ export const StoryCard = React.memo(
 
 function Story({ data, index }: { data: HackerNewsStory; index: number }) {
   const url = new URL(data.url);
-  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
   const metadata = useMetadata(url);
 
   if (!metadata) {
@@ -154,7 +154,7 @@ function Story({ data, index }: { data: HackerNewsStory; index: number }) {
 
 function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
   const url = data.url ? new URL(data.url) : undefined;
-  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
   const metadata = useMetadata(url);
 
   if (!metadata) {
@@ -203,12 +203,18 @@ function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
       )}
 
       <RN.TouchableWithoutFeedback
-        onPress={() =>
-          navigation.navigate("BrowserModal", {
-            title: data.title,
-            url: !url ? "" : url.toString(),
-          })
-        }
+        onPress={() => {
+          if (url) {
+            navigation.navigate("BrowserModal", {
+              title: data.title,
+              url: url.toString(),
+            });
+          } else {
+            navigation.navigate("ThreadModal", {
+              id: data.id,
+            });
+          }
+        }}
       >
         <RN.Text
           style={storyTitle(index)}
@@ -227,12 +233,18 @@ function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
 
       {data.text && (
         <RN.TouchableWithoutFeedback
-          onPress={() =>
-            navigation.navigate("BrowserModal", {
-              title: data.title,
-              url: "",
-            })
-          }
+          onPress={() => {
+            if (url) {
+              navigation.navigate("BrowserModal", {
+                title: data.title,
+                url: url.toString(),
+              });
+            } else {
+              navigation.navigate("ThreadModal", {
+                id: data.id,
+              });
+            }
+          }}
         >
           <RN.Text ellipsizeMode="tail" style={storyText()} numberOfLines={4}>
             {stripTags(htmlEntities.decode(data.text), [], " ")}
@@ -257,15 +269,14 @@ function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
 }
 
 function AskStory({ data, index }: { data: HackerNewsAsk; index: number }) {
-  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
 
   return (
     <RN.View style={storyContainer(index)}>
       <RN.TouchableWithoutFeedback
         onPress={() =>
-          navigation.navigate("BrowserModal", {
-            title: data.title,
-            url: "",
+          navigation.navigate("ThreadModal", {
+            id: data.id,
           })
         }
       >
@@ -278,18 +289,19 @@ function AskStory({ data, index }: { data: HackerNewsAsk; index: number }) {
         </RN.Text>
       </RN.TouchableWithoutFeedback>
 
-      <RN.TouchableWithoutFeedback
-        onPress={() =>
-          navigation.navigate("BrowserModal", {
-            title: data.title,
-            url: "",
-          })
-        }
-      >
-        <RN.Text ellipsizeMode="tail" style={storyText()} numberOfLines={4}>
-          {stripTags(htmlEntities.decode(data.text), [], " ")}
-        </RN.Text>
-      </RN.TouchableWithoutFeedback>
+      {data.text && (
+        <RN.TouchableWithoutFeedback
+          onPress={() =>
+            navigation.navigate("ThreadModal", {
+              id: data.id,
+            })
+          }
+        >
+          <RN.Text ellipsizeMode="tail" style={storyText()} numberOfLines={4}>
+            {stripTags(htmlEntities.decode(data.text), [], " ")}
+          </RN.Text>
+        </RN.TouchableWithoutFeedback>
+      )}
 
       <RN.View>
         <RN.View style={byLine}>
@@ -323,15 +335,14 @@ function CommentStory({
   data: HackerNewsComment;
   index: number;
 }) {
-  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
 
   return (
     <RN.View style={storyContainer(index)}>
       <RN.TouchableWithoutFeedback
         onPress={() =>
-          navigation.navigate("BrowserModal", {
-            title: "",
-            url: "",
+          navigation.navigate("ThreadModal", {
+            id: data.id,
           })
         }
       >
