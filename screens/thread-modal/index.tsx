@@ -84,7 +84,7 @@ export function ThreadModal({ navigation, route }: ThreadModalProps) {
         </RN.View>
       ),
     [
-      story.data.title,
+      story.data?.title,
       htmlSource,
       dimensions.width,
       htmlTagStyles,
