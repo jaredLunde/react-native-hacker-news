@@ -145,7 +145,11 @@ function Story({ data, index }: { data: HackerNewsStory; index: number }) {
 
         <RN.Text style={footerText()}>
           ⇧{data.score} &bull;{" "}
-          <RN.Text style={commentsStyle}>{data.descendants} comments</RN.Text>
+          <RN.TouchableWithoutFeedback
+            onPress={() => navigation.navigate("Thread", { id: data.id })}
+          >
+            <RN.Text style={commentsStyle}>{data.descendants} comments</RN.Text>
+          </RN.TouchableWithoutFeedback>
         </RN.Text>
       </RN.View>
     </RN.View>
@@ -210,7 +214,7 @@ function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
               url: url.toString(),
             });
           } else {
-            navigation.navigate("ThreadModal", {
+            navigation.navigate("Thread", {
               id: data.id,
             });
           }
@@ -240,7 +244,7 @@ function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
                 url: url.toString(),
               });
             } else {
-              navigation.navigate("ThreadModal", {
+              navigation.navigate("Thread", {
                 id: data.id,
               });
             }
@@ -275,7 +279,7 @@ function AskStory({ data, index }: { data: HackerNewsAsk; index: number }) {
     <RN.View style={storyContainer(index)}>
       <RN.TouchableWithoutFeedback
         onPress={() =>
-          navigation.navigate("ThreadModal", {
+          navigation.navigate("Thread", {
             id: data.id,
           })
         }
@@ -292,7 +296,7 @@ function AskStory({ data, index }: { data: HackerNewsAsk; index: number }) {
       {data.text && (
         <RN.TouchableWithoutFeedback
           onPress={() =>
-            navigation.navigate("ThreadModal", {
+            navigation.navigate("Thread", {
               id: data.id,
             })
           }
@@ -317,7 +321,11 @@ function AskStory({ data, index }: { data: HackerNewsAsk; index: number }) {
 
         <RN.Text style={footerText()}>
           ⇧{data.score} &bull;{" "}
-          <RN.Text style={commentsStyle}>{data.descendants} comments</RN.Text>
+          <RN.TouchableWithoutFeedback
+            onPress={() => navigation.navigate("Thread", { id: data.id })}
+          >
+            <RN.Text style={commentsStyle}>{data.descendants} comments</RN.Text>
+          </RN.TouchableWithoutFeedback>
         </RN.Text>
       </RN.View>
     </RN.View>
@@ -341,7 +349,7 @@ function CommentStory({
     <RN.View style={storyContainer(index)}>
       <RN.TouchableWithoutFeedback
         onPress={() =>
-          navigation.navigate("ThreadModal", {
+          navigation.navigate("Thread", {
             id: data.id,
           })
         }

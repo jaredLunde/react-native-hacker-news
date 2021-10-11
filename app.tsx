@@ -19,7 +19,7 @@ import {
   Tab,
 } from "@/screens/routers";
 import { Stories } from "@/screens/stories";
-import { ThreadModal } from "@/screens/thread-modal";
+import { Thread } from "@/screens/thread";
 import { User } from "@/screens/user";
 
 registerRootComponent(App);
@@ -202,11 +202,11 @@ function HomeScreens() {
         initialParams={{ filter: "top" }}
       />
       <HomeStack.Screen name="User" component={User} />
+      <HomeStack.Screen name="Thread" component={Thread} />
       <HomeStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
         <HomeStack.Screen name="BrowserModal" component={BrowserModal} />
-        <HomeStack.Screen name="ThreadModal" component={ThreadModal} />
       </HomeStack.Group>
     </HomeStack.Navigator>
   );
@@ -225,11 +225,11 @@ function ShowScreens() {
         initialParams={{ filter: "show" }}
       />
       <ShowStack.Screen name="User" component={User} />
+      <ShowStack.Screen name="Thread" component={Thread} />
       <ShowStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
         <ShowStack.Screen name="BrowserModal" component={BrowserModal} />
-        <ShowStack.Screen name="ThreadModal" component={ThreadModal} />
       </ShowStack.Group>
     </ShowStack.Navigator>
   );
@@ -248,11 +248,11 @@ function AskScreens() {
         initialParams={{ filter: "ask" }}
       />
       <AskStack.Screen name="User" component={User} />
+      <AskStack.Screen name="Thread" component={Thread} />
       <AskStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
         <AskStack.Screen name="BrowserModal" component={BrowserModal} />
-        <AskStack.Screen name="ThreadModal" component={ThreadModal} />
       </AskStack.Group>
     </AskStack.Navigator>
   );
@@ -271,11 +271,11 @@ function JobsScreens() {
         initialParams={{ filter: "job" }}
       />
       <JobsStack.Screen name="User" component={User} />
+      <JobsStack.Screen name="Thread" component={Thread} />
       <JobsStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
         <JobsStack.Screen name="BrowserModal" component={BrowserModal} />
-        <JobsStack.Screen name="ThreadModal" component={ThreadModal} />
       </JobsStack.Group>
     </JobsStack.Navigator>
   );

@@ -12,7 +12,7 @@ export type StackParamList = {
   Stories: { filter: StoryFilters };
   User: { id: string };
   BrowserModal: { title: string | undefined; url: string };
-  ThreadModal: { id: number };
+  Thread: { id: number };
 };
 
 export type TabParamList = {

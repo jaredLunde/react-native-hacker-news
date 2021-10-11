@@ -20,7 +20,7 @@ import type {
   HackerNewsStory,
 } from "@/types/hn-api";
 
-export function ThreadModal({ navigation, route }: ThreadModalProps) {
+export function Thread({ navigation, route }: ThreadProps) {
   useDash();
   const { id } = route.params;
   const dimensions = RN.useWindowDimensions();
@@ -43,7 +43,7 @@ export function ThreadModal({ navigation, route }: ThreadModalProps) {
         },
       },
     }),
-    [navigation.navigate]
+    [navigation]
   );
 
   const htmlTagStyles = React.useMemo<MixedStyleRecord>(
@@ -102,14 +102,16 @@ export function ThreadModal({ navigation, route }: ThreadModalProps) {
 
   return (
     <RN.View style={container()}>
-      <RN.View style={modalHeader()}>
-        <RN.TouchableOpacity
-          style={closeButton()}
-          onPress={() => navigation.goBack()}
-        >
-          <Icon name="x" size={18} color="textAccent" />
-        </RN.TouchableOpacity>
-      </RN.View>
+      <RN.SafeAreaView>
+        <RN.View style={header()}>
+          <RN.TouchableOpacity
+            style={backButton()}
+            onPress={() => navigation.goBack()}
+          >
+            <Icon name="chevron-left" size={18} color="textAccent" />
+          </RN.TouchableOpacity>
+        </RN.View>
+      </RN.SafeAreaView>
 
       <RN.FlatList
         ListHeaderComponent={listHeaderComponent}
@@ -147,16 +149,15 @@ const container = oneMemo<RN.ViewStyle>((t) => ({
   backgroundColor: t.color.bodyBg,
 }));
 
-const modalHeader = oneMemo<RN.ViewStyle>((t) => ({
+const header = oneMemo<RN.ViewStyle>((t) => ({
   flexDirection: "row",
   alignItems: "center",
   width: "100%",
   padding: t.space.md,
-  borderBottomColor: t.color.accent,
-  borderBottomWidth: t.borderWidth.hairline,
+  paddingLeft: t.space.lg,
 }));
 
-const closeButton = oneMemo<RN.ViewStyle>((t) => ({
+const backButton = oneMemo<RN.ViewStyle>((t) => ({
   alignItems: "center",
   justifyContent: "center",
   width: 18 + t.space.sm * 2,
@@ -176,6 +177,7 @@ const title = oneMemo<RN.TextStyle>((t) => ({
   fontSize: t.type.size.xl,
   fontWeight: "900",
   padding: t.space.lg,
+  paddingTop: t.space.md,
 }));
 
 const content = oneMemo((t) => ({
@@ -216,5 +218,5 @@ function linkify(text: string) {
   return text;
 }
 
-export interface ThreadModalProps
-  extends NativeStackScreenProps<StackParamList, "ThreadModal"> {}
+export interface ThreadProps
+  extends NativeStackScreenProps<StackParamList, "Thread"> {}
