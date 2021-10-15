@@ -162,17 +162,6 @@ export function Thread({ navigation, route }: ThreadProps) {
             </RN.Text>
           </RN.TouchableWithoutFeedback>
 
-          <RN.View style={storyByLine()}>
-            <RN.TouchableWithoutFeedback
-              onPress={() => navigation.navigate("User", { id: data.by })}
-            >
-              <RN.Text style={byStyle()}>@{data.by}</RN.Text>
-            </RN.TouchableWithoutFeedback>
-            <RN.Text style={agoStyle()}>
-              &bull; {ago.format(new Date(data.time * 1000), "mini")}
-            </RN.Text>
-          </RN.View>
-
           {htmlSource && (
             <RenderHTML
               contentWidth={dimensions.width}
@@ -187,19 +176,34 @@ export function Thread({ navigation, route }: ThreadProps) {
             />
           )}
 
-          {"kids" in data && data.kids.length > 0 && (
-            <RN.Text style={subtitle()}>
-              Comments{" "}
-              <RN.Text style={subtitleCount()}>
-                &bull; {data.kids.length}
-              </RN.Text>
+          <RN.View style={storyByLine()}>
+            <RN.TouchableWithoutFeedback
+              onPress={() => navigation.navigate("User", { id: data.by })}
+            >
+              <RN.Text style={byStyle()}>@{data.by}</RN.Text>
+            </RN.TouchableWithoutFeedback>
+            <RN.Text style={agoStyle()}>
+              {ago.format(new Date(data.time * 1000), "mini")}
             </RN.Text>
-          )}
+          </RN.View>
+
+          {data.type !== "job" &&
+            (data.score || ("descendants" in data && data.descendants > 0)) && (
+              <RN.Text style={subtitle()}>
+                {data.score && <RN.Text style={score()}>⇧{data.score}</RN.Text>}
+                {"descendants" in data && data.descendants > 0 && (
+                  <React.Fragment>
+                    {" "}
+                    &bull; {data.descendants} comments
+                  </React.Fragment>
+                )}
+              </RN.Text>
+            )}
         </RN.View>
       ),
     [
       data,
-      metadata?.image,
+      metadata,
       htmlSource,
       dimensions.width,
       htmlTagStyles,
@@ -382,7 +386,7 @@ const title = oneMemo<RN.TextStyle>((t) => ({
   fontWeight: "900",
   padding: t.space.lg,
   paddingTop: t.space.md,
-  paddingBottom: t.space.xs,
+  paddingBottom: t.space.md,
 }));
 
 const subtitle = oneMemo<RN.TextStyle>((t) => ({
@@ -391,6 +395,10 @@ const subtitle = oneMemo<RN.TextStyle>((t) => ({
   fontWeight: "600",
   padding: t.space.lg,
   paddingTop: t.space.md,
+}));
+
+const score = oneMemo<RN.TextStyle>((t) => ({
+  color: t.color.primary,
 }));
 
 const storyImage = oneMemo<RN.ImageStyle>((t) => ({
@@ -424,16 +432,13 @@ const hostname = oneMemo<RN.TextStyle>((t) => ({
   fontWeight: "300",
 }));
 
-const subtitleCount = oneMemo<RN.TextStyle>((t) => ({
-  color: t.color.textAccent,
-}));
-
 const content = oneMemo((t) => ({
   color: t.color.textPrimary,
   fontSize: t.type.size.sm,
   fontWeight: "400",
   padding: t.space.lg,
   paddingTop: 0,
+  paddingBottom: 0,
 }));
 
 const commentContent = oneMemo((t) => ({
@@ -445,6 +450,7 @@ const commentContent = oneMemo((t) => ({
 const storyByLine = oneMemo<RN.ViewStyle>((t) => ({
   width: "100%",
   flexDirection: "row",
+  justifyContent: "space-between",
   paddingLeft: t.space.lg,
   paddingRight: t.space.lg,
   paddingBottom: t.space.md,

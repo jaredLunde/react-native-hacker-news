@@ -69,11 +69,16 @@
     "@types/jest": "latest",
     "@types/react": "~16.9.35",
     "@types/react-native": "~0.63.2",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
     "babel-jest": "^27.2.4",
     "babel-plugin-tsconfig-paths": "^1.0.1",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.32.0",
     "eslint-config-lunde": "^0.5.0",
+    "eslint-plugin-jest": "^25.2.1",
+    "eslint-plugin-react": "^7.26.1",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-react-native": "^3.11.0",
     "husky": "^7.0.2",
     "jest": "^27.2.4",
@@ -83,7 +88,7 @@
     "prettier-package-json": "^2.6.0",
     "react-test-renderer": "^17.0.2",
     "typedoc": "^0.22.5",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.4"
   },
   "commitlint": {
     "extends": [
