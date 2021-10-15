@@ -21,7 +21,7 @@ export type HackerNewsItemBase = {
   /**
    * The ids of the item's comments, in ranked display order.
    */
-  kids: number[];
+  kids?: number[];
   /**
    * A list of related pollopts, in display order.
    */

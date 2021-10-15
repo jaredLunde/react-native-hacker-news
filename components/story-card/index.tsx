@@ -19,6 +19,7 @@ import type {
   HackerNewsStory,
 } from "@/types/hn-api";
 import { ago } from "@/utils/ago";
+import { pluralize } from "@/utils/pluralize";
 
 export const StoryCard = React.memo(
   function StoryCard({ index, id }: { index: number; id: number | null }) {
@@ -150,7 +151,9 @@ function Story({ data, index }: { data: HackerNewsStory; index: number }) {
           <RN.TouchableWithoutFeedback
             onPress={() => navigation.navigate("Thread", { id: data.id })}
           >
-            <RN.Text style={commentsStyle}>{data.descendants} comments</RN.Text>
+            <RN.Text style={commentsStyle}>
+              {pluralize(data.descendants, "comment")}
+            </RN.Text>
           </RN.TouchableWithoutFeedback>
         </RN.Text>
       </RN.View>
@@ -326,7 +329,9 @@ function AskStory({ data, index }: { data: HackerNewsAsk; index: number }) {
           <RN.TouchableWithoutFeedback
             onPress={() => navigation.navigate("Thread", { id: data.id })}
           >
-            <RN.Text style={commentsStyle}>{data.descendants} comments</RN.Text>
+            <RN.Text style={commentsStyle}>
+              {pluralize(data.descendants, "comment")}
+            </RN.Text>
           </RN.TouchableWithoutFeedback>
         </RN.Text>
       </RN.View>
@@ -383,9 +388,15 @@ function CommentStory({
       <RN.View>
         <RN.View style={byLine}>
           <RN.TouchableWithoutFeedback
-            onPress={() => navigation.navigate("User", { id: data.by })}
+            onPress={() =>
+              navigation.navigate("Thread", {
+                id: data.id,
+              })
+            }
           >
-            <RN.Text style={byStyle()}>@{data.by}</RN.Text>
+            <RN.Text style={byStyle()}>
+              {pluralize(data.kids?.length ?? 0, "reply", "replies")}
+            </RN.Text>
           </RN.TouchableWithoutFeedback>
           <RN.Text style={agoStyle()}>
             {ago.format(new Date(data.time * 1000), "mini")}

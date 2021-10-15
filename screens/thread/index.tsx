@@ -23,6 +23,7 @@ import type {
   HackerNewsStory,
 } from "@/types/hn-api";
 import { ago } from "@/utils/ago";
+import { pluralize } from "@/utils/pluralize";
 
 export function Thread({ navigation, route }: ThreadProps) {
   const { theme } = useDash();
@@ -191,10 +192,10 @@ export function Thread({ navigation, route }: ThreadProps) {
             (data.score || ("descendants" in data && data.descendants > 0)) && (
               <RN.Text style={subtitle()}>
                 {data.score && <RN.Text style={score()}>⇧{data.score}</RN.Text>}
-                {"descendants" in data && data.descendants > 0 && (
+                {"descendants" in data && (
                   <React.Fragment>
                     {" "}
-                    &bull; {data.descendants} comments
+                    &bull; {pluralize(data.descendants, "comment")}
                   </React.Fragment>
                 )}
               </RN.Text>
