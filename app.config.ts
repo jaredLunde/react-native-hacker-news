@@ -21,6 +21,7 @@ const config: ExpoConfig = {
     bundleIdentifier: "com.jaredlunde.hn",
   },
   android: {
+    jsEngine: "hermes",
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: "#FFFFFF",

@@ -1,5 +1,6 @@
+import type { NavigationProp } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import * as Linking from "expo-linking";
 import * as htmlEntities from "html-entities";
 import React from "react";
 import * as RN from "react-native";
@@ -12,18 +13,22 @@ import useSWR from "swr";
 import { Icon } from "@/components/icon";
 import { Skeleton } from "@/components/skeleton";
 import { oneMemo, useDash } from "@/dash";
+import { useMetadata } from "@/hooks/use-metadata";
 import type { StackParamList } from "@/screens/routers";
 import type {
   HackerNewsAsk,
+  HackerNewsComment,
   HackerNewsJob,
   HackerNewsPoll,
   HackerNewsStory,
 } from "@/types/hn-api";
+import { ago } from "@/utils/ago";
 
 export function Thread({ navigation, route }: ThreadProps) {
-  useDash();
+  const { theme } = useDash();
   const { id } = route.params;
   const dimensions = RN.useWindowDimensions();
+  const [didMount, setDidMount] = React.useState(false);
   const story = useSWR<
     HackerNewsStory | HackerNewsJob | HackerNewsPoll | HackerNewsAsk
   >(
@@ -34,7 +39,16 @@ export function Thread({ navigation, route }: ThreadProps) {
         headers: { "Content-Type": "application/json" },
       }).then((res) => res.json())
   );
-
+  const url =
+    story.data && "url" in story.data && story.data.url
+      ? new URL(story.data.url)
+      : undefined;
+  const metadata = useMetadata(url);
+  React.useEffect(() => {
+    if (story.data) {
+      setDidMount(true);
+    }
+  }, [story.data]);
   const htmlRenderersProps = React.useMemo<Partial<RenderersProps>>(
     () => ({
       a: {
@@ -48,7 +62,7 @@ export function Thread({ navigation, route }: ThreadProps) {
 
   const htmlTagStyles = React.useMemo<MixedStyleRecord>(
     () => ({ a: link() }),
-    []
+    [theme]
   );
 
   const htmlSource = React.useMemo(
@@ -60,13 +74,104 @@ export function Thread({ navigation, route }: ThreadProps) {
     [story.data]
   );
 
+  const data = story.data;
   const listHeaderComponent = React.useCallback(
     () =>
-      !story.data ? null : (
+      !data ? null : (
         <RN.View style={storyContainer()}>
-          <RN.Text numberOfLines={4} adjustsFontSizeToFit style={title()}>
-            {story.data.title}
-          </RN.Text>
+          {metadata?.image ? (
+            <React.Fragment>
+              <RN.View style={floatingHeader()}>
+                <RN.SafeAreaView>
+                  <RN.TouchableOpacity
+                    style={backButton()}
+                    onPress={() => navigation.goBack()}
+                  >
+                    <Icon name="chevron-left" size={18} color="textAccent" />
+                  </RN.TouchableOpacity>
+                </RN.SafeAreaView>
+              </RN.View>
+
+              <RN.TouchableWithoutFeedback
+                onPress={() =>
+                  data &&
+                  url &&
+                  navigation.navigate("BrowserModal", {
+                    title: data.title,
+                    url: url.toString(),
+                  })
+                }
+              >
+                <RN.Image
+                  style={storyImage()}
+                  source={{ uri: metadata?.image }}
+                />
+              </RN.TouchableWithoutFeedback>
+            </React.Fragment>
+          ) : (
+            <RN.SafeAreaView>
+              <RN.View style={header()}>
+                <RN.TouchableOpacity
+                  style={backButton()}
+                  onPress={() => navigation.goBack()}
+                >
+                  <Icon name="chevron-left" size={18} color="textAccent" />
+                </RN.TouchableOpacity>
+              </RN.View>
+            </RN.SafeAreaView>
+          )}
+
+          {metadata && url && (
+            <RN.TouchableWithoutFeedback
+              onPress={() =>
+                navigation.navigate("BrowserModal", {
+                  title: metadata.applicationName || url.hostname,
+                  url: url.origin,
+                })
+              }
+            >
+              <RN.View style={hostContainerStyle()}>
+                <RN.Image
+                  style={favicon()}
+                  source={{ uri: metadata.favicon }}
+                />
+
+                <RN.Text
+                  style={hostname()}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {metadata.applicationName || url.host.replace(/^www\./, "")}
+                </RN.Text>
+              </RN.View>
+            </RN.TouchableWithoutFeedback>
+          )}
+
+          <RN.TouchableWithoutFeedback
+            onPress={() =>
+              data &&
+              url &&
+              navigation.navigate("BrowserModal", {
+                title: data.title,
+                url: url.toString(),
+              })
+            }
+          >
+            <RN.Text numberOfLines={4} adjustsFontSizeToFit style={title()}>
+              {data.title}
+            </RN.Text>
+          </RN.TouchableWithoutFeedback>
+
+          <RN.View style={storyByLine()}>
+            <RN.TouchableWithoutFeedback
+              onPress={() => navigation.navigate("User", { id: data.by })}
+            >
+              <RN.Text style={byStyle()}>@{data.by}</RN.Text>
+            </RN.TouchableWithoutFeedback>
+            <RN.Text style={agoStyle()}>
+              &bull; {ago.format(new Date(data.time * 1000), "mini")}
+            </RN.Text>
+          </RN.View>
 
           {htmlSource && (
             <RenderHTML
@@ -81,18 +186,30 @@ export function Thread({ navigation, route }: ThreadProps) {
               enableExperimentalMarginCollapsing
             />
           )}
+
+          {"kids" in data && data.kids.length > 0 && (
+            <RN.Text style={subtitle()}>
+              Comments{" "}
+              <RN.Text style={subtitleCount()}>
+                &bull; {data.kids.length}
+              </RN.Text>
+            </RN.Text>
+          )}
         </RN.View>
       ),
     [
-      story.data?.title,
+      data,
+      metadata?.image,
       htmlSource,
       dimensions.width,
       htmlTagStyles,
       htmlRenderersProps,
+      url,
+      navigation,
     ]
   );
 
-  if (!story.data) {
+  if (!data) {
     return (
       <RN.View>
         <Skeleton />
@@ -102,26 +219,15 @@ export function Thread({ navigation, route }: ThreadProps) {
 
   return (
     <RN.View style={container()}>
-      <RN.SafeAreaView>
-        <RN.View style={header()}>
-          <RN.TouchableOpacity
-            style={backButton()}
-            onPress={() => navigation.goBack()}
-          >
-            <Icon name="chevron-left" size={18} color="textAccent" />
-          </RN.TouchableOpacity>
-        </RN.View>
-      </RN.SafeAreaView>
-
       <RN.FlatList
         ListHeaderComponent={listHeaderComponent}
-        data={
-          !story.data
-            ? fauxFlatComments
-            : "kids" in story.data
-            ? story.data.kids
-            : []
+        refreshControl={
+          <RN.RefreshControl
+            refreshing={!data && didMount}
+            onRefresh={() => story.mutate()}
+          />
         }
+        data={!data ? fauxFlatComments : "kids" in data ? data.kids : []}
         keyExtractor={keyExtractor}
         initialNumToRender={4}
         maxToRenderPerBatch={5}
@@ -137,16 +243,107 @@ export function Thread({ navigation, route }: ThreadProps) {
 const fauxFlatComments = Array.from<number>({ length: 3 }).fill(-1);
 
 function renderItem({ item, index }: { item: number; index: number }) {
-  return <RN.Text style={title()}>{item}</RN.Text>;
+  return <Comment id={item} index={index} />;
 }
 
 function keyExtractor(item: number, index: number) {
   return item === -1 ? index.toString() : item.toString();
 }
 
+const Comment = React.memo<{ id: number; index: number }>(
+  function Comment({ id }) {
+    const { theme } = useDash();
+    const comment = useSWR<HackerNewsComment>(
+      id === -1
+        ? null
+        : `https://hacker-news.firebaseio.com/v0/item/${id}.json`,
+      (key) =>
+        fetch(key, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }).then((res) => res.json())
+    );
+    const dimensions = RN.useWindowDimensions();
+    const navigation = useNavigation<NavigationProp<StackParamList>>();
+    const htmlRenderersProps = React.useMemo<Partial<RenderersProps>>(
+      () => ({
+        a: {
+          onPress(_, url) {
+            navigation.navigate("BrowserModal", { title: url, url });
+          },
+        },
+      }),
+      [navigation]
+    );
+
+    const htmlTagStyles = React.useMemo<MixedStyleRecord>(
+      () => ({ a: link() }),
+      [theme]
+    );
+
+    const htmlSource = React.useMemo(
+      () =>
+        comment.data && {
+          html: linkify(comment.data.text),
+        },
+      [comment.data]
+    );
+
+    if (!comment.data) {
+      return (
+        <RN.View>
+          <Skeleton />
+        </RN.View>
+      );
+    }
+
+    if (comment.data.dead || comment.data.deleted) {
+      return null;
+    }
+
+    const data = comment.data;
+
+    return (
+      <RN.View style={commentContainer()}>
+        <RN.View style={byLine}>
+          <RN.TouchableWithoutFeedback
+            onPress={() => navigation.navigate("User", { id: data.by })}
+          >
+            <RN.Text style={byStyle()}>@{data.by}</RN.Text>
+          </RN.TouchableWithoutFeedback>
+          <RN.Text style={agoStyle()}>
+            {ago.format(new Date(data.time * 1000), "mini")}
+          </RN.Text>
+        </RN.View>
+
+        {htmlSource && (
+          <RenderHTML
+            contentWidth={dimensions.width}
+            source={htmlSource}
+            baseStyle={commentContent()}
+            tagsStyles={htmlTagStyles}
+            defaultTextProps={htmlDefaultTextProps}
+            renderersProps={htmlRenderersProps}
+            enableExperimentalBRCollapsing
+            enableExperimentalGhostLinesPrevention
+            enableExperimentalMarginCollapsing
+          />
+        )}
+      </RN.View>
+    );
+  },
+  (prev, next) => prev.id === next.id
+);
+
 const container = oneMemo<RN.ViewStyle>((t) => ({
   flex: 1,
   backgroundColor: t.color.bodyBg,
+}));
+
+const commentContainer = oneMemo<RN.ViewStyle>((t) => ({
+  padding: t.space.lg,
+  borderBottomWidth: t.borderWidth.hairline,
+  borderBottomColor: t.color.accent,
 }));
 
 const header = oneMemo<RN.ViewStyle>((t) => ({
@@ -155,6 +352,13 @@ const header = oneMemo<RN.ViewStyle>((t) => ({
   width: "100%",
   padding: t.space.md,
   paddingLeft: t.space.lg,
+}));
+
+const floatingHeader = oneMemo<RN.ViewStyle>((t) => ({
+  position: "absolute",
+  left: t.space.lg,
+  top: t.space.lg,
+  zIndex: 10,
 }));
 
 const backButton = oneMemo<RN.ViewStyle>((t) => ({
@@ -178,6 +382,50 @@ const title = oneMemo<RN.TextStyle>((t) => ({
   fontWeight: "900",
   padding: t.space.lg,
   paddingTop: t.space.md,
+  paddingBottom: t.space.xs,
+}));
+
+const subtitle = oneMemo<RN.TextStyle>((t) => ({
+  color: t.color.textPrimary,
+  fontSize: t.type.size.sm,
+  fontWeight: "600",
+  padding: t.space.lg,
+  paddingTop: t.space.md,
+}));
+
+const storyImage = oneMemo<RN.ImageStyle>((t) => ({
+  width: "100%",
+  height: 240,
+  marginBottom: t.space.md,
+}));
+
+const hostContainerStyle = oneMemo<RN.ViewStyle>((t) => ({
+  width: "100%",
+  flexDirection: "row",
+  alignItems: "center",
+  paddingRight: t.space.lg,
+  paddingLeft: t.space.lg,
+  paddingTop: t.space.md,
+  paddingBottom: t.space.md,
+}));
+
+const favicon = oneMemo<RN.ImageStyle>((t) => ({
+  width: 20,
+  height: 20,
+  borderRadius: t.radius.md,
+  marginRight: t.space.sm,
+}));
+
+const hostname = oneMemo<RN.TextStyle>((t) => ({
+  flex: 1,
+  width: "100%",
+  color: t.color.textAccent,
+  fontSize: t.type.size["2xs"],
+  fontWeight: "300",
+}));
+
+const subtitleCount = oneMemo<RN.TextStyle>((t) => ({
+  color: t.color.textAccent,
 }));
 
 const content = oneMemo((t) => ({
@@ -188,9 +436,43 @@ const content = oneMemo((t) => ({
   paddingTop: 0,
 }));
 
+const commentContent = oneMemo((t) => ({
+  color: t.color.textPrimary,
+  fontSize: t.type.size.xs,
+  fontWeight: "300",
+}));
+
+const storyByLine = oneMemo<RN.ViewStyle>((t) => ({
+  width: "100%",
+  flexDirection: "row",
+  paddingLeft: t.space.lg,
+  paddingRight: t.space.lg,
+  paddingBottom: t.space.md,
+}));
+
+const byLine: RN.ViewStyle = {
+  width: "100%",
+  flexDirection: "row",
+  justifyContent: "space-between",
+};
+
+const byStyle = oneMemo<RN.TextStyle>((t) => ({
+  color: t.color.textAccent,
+  fontSize: t.type.size["2xs"],
+  fontWeight: "300",
+  padding: t.space.sm,
+  paddingTop: 0,
+  paddingLeft: 0,
+}));
+
+const agoStyle = oneMemo<RN.TextStyle>((t) => ({
+  color: t.color.textAccent,
+  fontSize: t.type.size["2xs"],
+  fontWeight: "300",
+}));
+
 const link = oneMemo((t) => ({
   color: t.color.textPrimary,
-  fontSize: t.type.size.sm,
   fontWeight: "600",
   textDecorationLine: "underline",
   textDecorationColor: t.color.primary,

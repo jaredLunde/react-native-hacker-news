@@ -45,7 +45,8 @@ export const StoryCard = React.memo(
       return null;
     }
 
-    return !("url" in story.data) && story.data.type === "story" ? (
+    return (!("url" in story.data) || story.data.url === undefined) &&
+      story.data.type === "story" ? (
       <AskStory data={story.data} index={index} />
     ) : story.data.type === "job" ? (
       <JobStory data={story.data} index={index} />
