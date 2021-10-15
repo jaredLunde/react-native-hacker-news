@@ -8,6 +8,7 @@ import useSWR from "swr";
 import { Skeleton } from "@/components/skeleton";
 import { lazyMemo, oneMemo, useDash } from "@/dash";
 import { useMetadata } from "@/hooks/use-metadata";
+import { useParents } from "@/hooks/use-parents";
 import type { StackParamList } from "@/screens/routers";
 import type {
   HackerNewsAsk,
@@ -345,9 +346,28 @@ function CommentStory({
   index: number;
 }) {
   const navigation = useNavigation<NavigationProp<StackParamList>>();
+  const parents = useParents(data.parent);
+
+  if (!parents.data) {
+    return (
+      <RN.View style={storyContainer(index)}>
+        <Skeleton style={storySkeleton(index)} />
+      </RN.View>
+    );
+  }
+  const parentData = parents.data[0];
 
   return (
     <RN.View style={storyContainer(index)}>
+      <RN.TouchableWithoutFeedback
+        onPress={() =>
+          navigation.navigate("Thread", {
+            id: parentData.id,
+          })
+        }
+      >
+        <RN.Text>{parentData.title}</RN.Text>
+      </RN.TouchableWithoutFeedback>
       <RN.TouchableWithoutFeedback
         onPress={() =>
           navigation.navigate("Thread", {
