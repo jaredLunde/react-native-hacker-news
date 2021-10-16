@@ -1,5 +1,5 @@
-import type { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as React from "react";
 import * as RN from "react-native";
 import { Icon } from "@/components/icon";
@@ -8,7 +8,7 @@ import type { StackParamList } from "@/screens/routers";
 
 export function NavigableHeader({ title }: NavigableHeaderProps) {
   useDash();
-  const navigation = useNavigation<NavigationProp<StackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
 
   return (
     <RN.SafeAreaView style={headerContainer()}>

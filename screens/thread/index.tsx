@@ -1,6 +1,8 @@
-import type { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+} from "@react-navigation/native-stack";
 import * as htmlEntities from "html-entities";
 import React from "react";
 import * as RN from "react-native";
@@ -40,10 +42,13 @@ export function Thread({ navigation, route }: ThreadProps) {
         headers: { "Content-Type": "application/json" },
       }).then((res) => res.json())
   );
-  const url =
-    story.data && "url" in story.data && story.data.url
-      ? new URL(story.data.url)
-      : undefined;
+  const url = React.useMemo(
+    () =>
+      story.data && "url" in story.data && story.data.url
+        ? new URL(story.data.url)
+        : undefined,
+    [story.data]
+  );
   const metadata = useMetadata(url);
   React.useEffect(() => {
     if (story.data) {
@@ -269,7 +274,8 @@ const Comment = React.memo<{ id: number; index: number }>(
         }).then((res) => res.json())
     );
     const dimensions = RN.useWindowDimensions();
-    const navigation = useNavigation<NavigationProp<StackParamList>>();
+    const navigation =
+      useNavigation<NativeStackNavigationProp<StackParamList>>();
     const htmlRenderersProps = React.useMemo<Partial<RenderersProps>>(
       () => ({
         a: {
@@ -334,6 +340,18 @@ const Comment = React.memo<{ id: number; index: number }>(
             enableExperimentalMarginCollapsing
           />
         )}
+
+        <RN.TouchableWithoutFeedback
+          onPress={() =>
+            navigation.push("Thread", {
+              id: data.id,
+            })
+          }
+        >
+          <RN.Text style={replies()}>
+            {pluralize(data.kids?.length ?? 0, "reply", "replies")}
+          </RN.Text>
+        </RN.TouchableWithoutFeedback>
       </RN.View>
     );
   },
@@ -469,6 +487,15 @@ const byStyle = oneMemo<RN.TextStyle>((t) => ({
   fontWeight: "300",
   padding: t.space.sm,
   paddingTop: 0,
+  paddingLeft: 0,
+}));
+
+const replies = oneMemo<RN.TextStyle>((t) => ({
+  color: t.color.textAccent,
+  fontSize: t.type.size["2xs"],
+  fontWeight: "300",
+  padding: t.space.sm,
+  paddingTop: t.space.md,
   paddingLeft: 0,
 }));
 
