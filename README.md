@@ -42,3 +42,11 @@ yarn && yarn ios
 ---
 
 <img src='.readme/light-mode-ask-hn.png' width=300> <img src='.readme/dark-mode-ask-hn.png' width=300>
+
+---
+
+<img src='.readme/light-mode-thread.png' width=300> <img src='.readme/dark-mode-thread.png' width=300>
+
+---
+
+<img src='.readme/light-mode-thread-scrolled.png' width=300> <img src='.readme/dark-mode-thread-scrolled.png' width=300>
