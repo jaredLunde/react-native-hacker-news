@@ -21,7 +21,7 @@ export type HackerNewsItemBase = {
   /**
    * The ids of the item's comments, in ranked display order.
    */
-  kids: number[];
+  kids?: number[];
   /**
    * A list of related pollopts, in display order.
    */
@@ -87,19 +87,36 @@ export type HackerNewsComment = Pick<
   type: "comment";
 };
 
-export type HackerNewsAsk = Pick<
-  HackerNewsItemBase,
-  | "by"
-  | "descendants"
-  | "id"
-  | "kids"
-  | "score"
-  | "time"
-  | "title"
-  | "text"
-  | "deleted"
-  | "dead"
-> & {
+export type HackerNewsAsk = (
+  | Pick<
+      HackerNewsItemBase,
+      | "by"
+      | "descendants"
+      | "id"
+      | "kids"
+      | "score"
+      | "time"
+      | "title"
+      | "text"
+      | "deleted"
+      | "dead"
+    >
+  | (Pick<
+      HackerNewsItemBase,
+      | "by"
+      | "descendants"
+      | "id"
+      | "kids"
+      | "score"
+      | "time"
+      | "title"
+      | "text"
+      | "deleted"
+      | "dead"
+    > & {
+      url: undefined;
+    })
+) & {
   type: "story";
 };
 

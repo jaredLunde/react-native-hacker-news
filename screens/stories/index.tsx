@@ -2,20 +2,21 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as React from "react";
 import * as RN from "react-native";
 import useSWR from "swr";
-import { Header } from "@/components/header";
+import { LogoHeader } from "@/components/logo-header";
 import { StoryCard } from "@/components/story-card";
 import { oneMemo, useDash } from "@/dash";
-import type { HomeStackParamList } from "@/screens/routers";
+import type { StackParamList } from "@/screens/routers";
 
 export function Stories(props: StoriesProps) {
   useDash();
+  const { filter } = props.route.params;
   const [didMount, setDidMount] = React.useState(false);
 
   /**
    * @see https://github.com/HackerNews/API
    */
   const stories = useSWR<number[]>(
-    `https://hacker-news.firebaseio.com/v0/${props.route.params.filter}stories.json`,
+    `https://hacker-news.firebaseio.com/v0/${filter}stories.json`,
     (key) =>
       fetch(key, {
         method: "GET",
@@ -41,13 +42,23 @@ export function Stories(props: StoriesProps) {
   const listHeaderComponent = React.useCallback(() => {
     return (
       <React.Fragment>
-        <Header />
+        <LogoHeader
+          title={
+            filter === "show"
+              ? "Show HN"
+              : filter === "ask"
+              ? "Ask HN"
+              : filter === "job"
+              ? "Jobs"
+              : "HN"
+          }
+        />
         <RN.View style={listStyle}>
           {(stories.data ?? fauxStories).slice(0, 5).map(renderItem)}
         </RN.View>
       </React.Fragment>
     );
-  }, [stories.data]);
+  }, [stories.data, filter]);
 
   return (
     <RN.FlatList
@@ -99,4 +110,4 @@ const listStyle: RN.ViewStyle = {
 };
 
 export interface StoriesProps
-  extends NativeStackScreenProps<HomeStackParamList, "Stories"> {}
+  extends NativeStackScreenProps<StackParamList, "Stories"> {}

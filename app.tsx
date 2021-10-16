@@ -19,6 +19,7 @@ import {
   Tab,
 } from "@/screens/routers";
 import { Stories } from "@/screens/stories";
+import { Thread } from "@/screens/thread";
 import { User } from "@/screens/user";
 
 registerRootComponent(App);
@@ -201,6 +202,7 @@ function HomeScreens() {
         initialParams={{ filter: "top" }}
       />
       <HomeStack.Screen name="User" component={User} />
+      <HomeStack.Screen name="Thread" component={Thread} />
       <HomeStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
@@ -223,6 +225,7 @@ function ShowScreens() {
         initialParams={{ filter: "show" }}
       />
       <ShowStack.Screen name="User" component={User} />
+      <ShowStack.Screen name="Thread" component={Thread} />
       <ShowStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
@@ -245,6 +248,7 @@ function AskScreens() {
         initialParams={{ filter: "ask" }}
       />
       <AskStack.Screen name="User" component={User} />
+      <AskStack.Screen name="Thread" component={Thread} />
       <AskStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
@@ -267,6 +271,7 @@ function JobsScreens() {
         initialParams={{ filter: "job" }}
       />
       <JobsStack.Screen name="User" component={User} />
+      <JobsStack.Screen name="Thread" component={Thread} />
       <JobsStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >

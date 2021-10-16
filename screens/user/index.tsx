@@ -2,19 +2,20 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as React from "react";
 import * as RN from "react-native";
 import useSWR from "swr";
-import { Header } from "@/components/header";
+import { NavigableHeader } from "@/components/navigable-header";
 import { StoryCard } from "@/components/story-card";
 import { oneMemo, useDash } from "@/dash";
-import type { HomeStackParamList } from "@/screens/routers";
+import type { StackParamList } from "@/screens/routers";
 import type { HackerNewsUser } from "@/types/hn-api";
 
 export function User(props: UserProps) {
   useDash();
+  const { id } = props.route.params;
   /**
    * @see https://github.com/HackerNews/API
    */
   const user = useSWR<HackerNewsUser>(
-    `https://hacker-news.firebaseio.com/v0/user/${props.route.params.id}.json`,
+    `https://hacker-news.firebaseio.com/v0/user/${id}.json`,
     (key) =>
       fetch(key, {
         method: "GET",
@@ -23,7 +24,7 @@ export function User(props: UserProps) {
   );
 
   const listHeaderComponent = React.useCallback(() => {
-    return <Header />;
+    return <NavigableHeader title={id} />;
   }, []);
 
   return (
@@ -69,4 +70,4 @@ const container = oneMemo<RN.ViewStyle>((t) => ({
 }));
 
 export interface UserProps
-  extends NativeStackScreenProps<HomeStackParamList, "User"> {}
+  extends NativeStackScreenProps<StackParamList, "User"> {}

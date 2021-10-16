@@ -1,5 +1,5 @@
-import type { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as htmlEntities from "html-entities";
 import * as React from "react";
 import * as RN from "react-native";
@@ -8,7 +8,8 @@ import useSWR from "swr";
 import { Skeleton } from "@/components/skeleton";
 import { lazyMemo, oneMemo, useDash } from "@/dash";
 import { useMetadata } from "@/hooks/use-metadata";
-import type { HomeStackParamList } from "@/screens/routers";
+import { useParents } from "@/hooks/use-parents";
+import type { StackParamList } from "@/screens/routers";
 import type {
   HackerNewsAsk,
   HackerNewsComment,
@@ -18,6 +19,7 @@ import type {
   HackerNewsStory,
 } from "@/types/hn-api";
 import { ago } from "@/utils/ago";
+import { pluralize } from "@/utils/pluralize";
 
 export const StoryCard = React.memo(
   function StoryCard({ index, id }: { index: number; id: number | null }) {
@@ -45,7 +47,8 @@ export const StoryCard = React.memo(
       return null;
     }
 
-    return !("url" in story.data) && story.data.type === "story" ? (
+    return (!("url" in story.data) || story.data.url === undefined) &&
+      story.data.type === "story" ? (
       <AskStory data={story.data} index={index} />
     ) : story.data.type === "job" ? (
       <JobStory data={story.data} index={index} />
@@ -62,7 +65,7 @@ export const StoryCard = React.memo(
 
 function Story({ data, index }: { data: HackerNewsStory; index: number }) {
   const url = new URL(data.url);
-  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
   const metadata = useMetadata(url);
 
   if (!metadata) {
@@ -78,7 +81,7 @@ function Story({ data, index }: { data: HackerNewsStory; index: number }) {
       {metadata?.image ? (
         <RN.TouchableWithoutFeedback
           onPress={() =>
-            navigation.navigate("BrowserModal", {
+            navigation.push("BrowserModal", {
               title: data.title,
               url: url.toString(),
             })
@@ -93,7 +96,7 @@ function Story({ data, index }: { data: HackerNewsStory; index: number }) {
 
       <RN.TouchableWithoutFeedback
         onPress={() =>
-          navigation.navigate("BrowserModal", {
+          navigation.push("BrowserModal", {
             title: metadata.applicationName || url.hostname,
             url: url.origin,
           })
@@ -110,7 +113,7 @@ function Story({ data, index }: { data: HackerNewsStory; index: number }) {
 
       <RN.TouchableWithoutFeedback
         onPress={() =>
-          navigation.navigate("BrowserModal", {
+          navigation.push("BrowserModal", {
             title: data.title,
             url: url.toString(),
           })
@@ -134,7 +137,7 @@ function Story({ data, index }: { data: HackerNewsStory; index: number }) {
       <RN.View>
         <RN.View style={byLine}>
           <RN.TouchableWithoutFeedback
-            onPress={() => navigation.navigate("User", { id: data.by })}
+            onPress={() => navigation.push("User", { id: data.by })}
           >
             <RN.Text style={byStyle()}>@{data.by}</RN.Text>
           </RN.TouchableWithoutFeedback>
@@ -145,7 +148,13 @@ function Story({ data, index }: { data: HackerNewsStory; index: number }) {
 
         <RN.Text style={footerText()}>
           ⇧{data.score} &bull;{" "}
-          <RN.Text style={commentsStyle}>{data.descendants} comments</RN.Text>
+          <RN.TouchableWithoutFeedback
+            onPress={() => navigation.push("Thread", { id: data.id })}
+          >
+            <RN.Text style={commentsStyle}>
+              {pluralize(data.descendants, "comment")}
+            </RN.Text>
+          </RN.TouchableWithoutFeedback>
         </RN.Text>
       </RN.View>
     </RN.View>
@@ -154,7 +163,7 @@ function Story({ data, index }: { data: HackerNewsStory; index: number }) {
 
 function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
   const url = data.url ? new URL(data.url) : undefined;
-  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
   const metadata = useMetadata(url);
 
   if (!metadata) {
@@ -170,7 +179,7 @@ function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
       {url && metadata?.image ? (
         <RN.TouchableWithoutFeedback
           onPress={() =>
-            navigation.navigate("BrowserModal", {
+            navigation.push("BrowserModal", {
               title: data.title,
               url: url.toString(),
             })
@@ -186,7 +195,7 @@ function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
       {url && (
         <RN.TouchableWithoutFeedback
           onPress={() =>
-            navigation.navigate("BrowserModal", {
+            navigation.push("BrowserModal", {
               title: metadata.applicationName || url.hostname,
               url: url.origin,
             })
@@ -203,12 +212,18 @@ function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
       )}
 
       <RN.TouchableWithoutFeedback
-        onPress={() =>
-          navigation.navigate("BrowserModal", {
-            title: data.title,
-            url: !url ? "" : url.toString(),
-          })
-        }
+        onPress={() => {
+          if (url) {
+            navigation.push("BrowserModal", {
+              title: data.title,
+              url: url.toString(),
+            });
+          } else {
+            navigation.push("Thread", {
+              id: data.id,
+            });
+          }
+        }}
       >
         <RN.Text
           style={storyTitle(index)}
@@ -227,12 +242,18 @@ function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
 
       {data.text && (
         <RN.TouchableWithoutFeedback
-          onPress={() =>
-            navigation.navigate("BrowserModal", {
-              title: data.title,
-              url: "",
-            })
-          }
+          onPress={() => {
+            if (url) {
+              navigation.push("BrowserModal", {
+                title: data.title,
+                url: url.toString(),
+              });
+            } else {
+              navigation.push("Thread", {
+                id: data.id,
+              });
+            }
+          }}
         >
           <RN.Text ellipsizeMode="tail" style={storyText()} numberOfLines={4}>
             {stripTags(htmlEntities.decode(data.text), [], " ")}
@@ -243,7 +264,7 @@ function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
       <RN.View>
         <RN.View style={byLine}>
           <RN.TouchableWithoutFeedback
-            onPress={() => navigation.navigate("User", { id: data.by })}
+            onPress={() => navigation.push("User", { id: data.by })}
           >
             <RN.Text style={byStyle()}>@{data.by}</RN.Text>
           </RN.TouchableWithoutFeedback>
@@ -257,15 +278,14 @@ function JobStory({ data, index }: { data: HackerNewsJob; index: number }) {
 }
 
 function AskStory({ data, index }: { data: HackerNewsAsk; index: number }) {
-  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
 
   return (
     <RN.View style={storyContainer(index)}>
       <RN.TouchableWithoutFeedback
         onPress={() =>
-          navigation.navigate("BrowserModal", {
-            title: data.title,
-            url: "",
+          navigation.push("Thread", {
+            id: data.id,
           })
         }
       >
@@ -278,23 +298,24 @@ function AskStory({ data, index }: { data: HackerNewsAsk; index: number }) {
         </RN.Text>
       </RN.TouchableWithoutFeedback>
 
-      <RN.TouchableWithoutFeedback
-        onPress={() =>
-          navigation.navigate("BrowserModal", {
-            title: data.title,
-            url: "",
-          })
-        }
-      >
-        <RN.Text ellipsizeMode="tail" style={storyText()} numberOfLines={4}>
-          {stripTags(htmlEntities.decode(data.text), [], " ")}
-        </RN.Text>
-      </RN.TouchableWithoutFeedback>
+      {data.text && (
+        <RN.TouchableWithoutFeedback
+          onPress={() =>
+            navigation.push("Thread", {
+              id: data.id,
+            })
+          }
+        >
+          <RN.Text ellipsizeMode="tail" style={storyText()} numberOfLines={4}>
+            {stripTags(htmlEntities.decode(data.text), [], " ")}
+          </RN.Text>
+        </RN.TouchableWithoutFeedback>
+      )}
 
       <RN.View>
         <RN.View style={byLine}>
           <RN.TouchableWithoutFeedback
-            onPress={() => navigation.navigate("User", { id: data.by })}
+            onPress={() => navigation.push("User", { id: data.by })}
           >
             <RN.Text style={byStyle()}>@{data.by}</RN.Text>
           </RN.TouchableWithoutFeedback>
@@ -305,7 +326,13 @@ function AskStory({ data, index }: { data: HackerNewsAsk; index: number }) {
 
         <RN.Text style={footerText()}>
           ⇧{data.score} &bull;{" "}
-          <RN.Text style={commentsStyle}>{data.descendants} comments</RN.Text>
+          <RN.TouchableWithoutFeedback
+            onPress={() => navigation.push("Thread", { id: data.id })}
+          >
+            <RN.Text style={commentsStyle}>
+              {pluralize(data.descendants, "comment")}
+            </RN.Text>
+          </RN.TouchableWithoutFeedback>
         </RN.Text>
       </RN.View>
     </RN.View>
@@ -323,15 +350,33 @@ function CommentStory({
   data: HackerNewsComment;
   index: number;
 }) {
-  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
+  const parents = useParents(data.parent);
+
+  if (!parents.data) {
+    return (
+      <RN.View style={storyContainer(index)}>
+        <Skeleton style={storySkeleton(index)} />
+      </RN.View>
+    );
+  }
+  const parentData = parents.data[0];
 
   return (
     <RN.View style={storyContainer(index)}>
       <RN.TouchableWithoutFeedback
         onPress={() =>
-          navigation.navigate("BrowserModal", {
-            title: "",
-            url: "",
+          navigation.push("Thread", {
+            id: parentData.id,
+          })
+        }
+      >
+        <RN.Text>{parentData.title}</RN.Text>
+      </RN.TouchableWithoutFeedback>
+      <RN.TouchableWithoutFeedback
+        onPress={() =>
+          navigation.push("Thread", {
+            id: data.id,
           })
         }
       >
@@ -340,17 +385,21 @@ function CommentStory({
         </RN.Text>
       </RN.TouchableWithoutFeedback>
 
-      <RN.View>
-        <RN.View style={byLine}>
-          <RN.TouchableWithoutFeedback
-            onPress={() => navigation.navigate("User", { id: data.by })}
-          >
-            <RN.Text style={byStyle()}>@{data.by}</RN.Text>
-          </RN.TouchableWithoutFeedback>
-          <RN.Text style={agoStyle()}>
-            {ago.format(new Date(data.time * 1000), "mini")}
+      <RN.View style={byLine}>
+        <RN.TouchableWithoutFeedback
+          onPress={() =>
+            navigation.push("Thread", {
+              id: data.id,
+            })
+          }
+        >
+          <RN.Text style={byStyle()}>
+            {pluralize(data.kids?.length ?? 0, "reply", "replies")}
           </RN.Text>
-        </RN.View>
+        </RN.TouchableWithoutFeedback>
+        <RN.Text style={agoStyle()}>
+          {ago.format(new Date(data.time * 1000), "mini")}
+        </RN.Text>
       </RN.View>
     </RN.View>
   );
