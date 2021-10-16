@@ -14,7 +14,7 @@ import RenderHTML from "react-native-render-html";
 import useSWR from "swr";
 import { Icon } from "@/components/icon";
 import { Skeleton } from "@/components/skeleton";
-import { oneMemo, useDash } from "@/dash";
+import { lazyMemo, oneMemo, useDash } from "@/dash";
 import { useMetadata } from "@/hooks/use-metadata";
 import type { StackParamList } from "@/screens/routers";
 import type {
@@ -84,7 +84,7 @@ export function Thread({ navigation, route }: ThreadProps) {
   const listHeaderComponent = React.useCallback(
     () =>
       !data ? null : (
-        <RN.View style={storyContainer()}>
+        <RN.View>
           {metadata?.image ? (
             <React.Fragment>
               <RN.View style={floatingHeader()}>
@@ -253,15 +253,15 @@ export function Thread({ navigation, route }: ThreadProps) {
 const fauxFlatComments = Array.from<number>({ length: 3 }).fill(-1);
 
 function renderItem({ item, index }: { item: number; index: number }) {
-  return <Comment id={item} index={index} />;
+  return <Comment id={item} index={index} depth={1} />;
 }
 
 function keyExtractor(item: number, index: number) {
   return item === -1 ? index.toString() : item.toString();
 }
 
-const Comment = React.memo<{ id: number; index: number }>(
-  function Comment({ id }) {
+const Comment = React.memo<{ id: number; index: number; depth: number }>(
+  function Comment({ id, depth }) {
     const { theme } = useDash();
     const comment = useSWR<HackerNewsComment>(
       id === -1
@@ -274,6 +274,7 @@ const Comment = React.memo<{ id: number; index: number }>(
         }).then((res) => res.json())
     );
     const dimensions = RN.useWindowDimensions();
+    const [showingReplies, setShowingReplies] = React.useState(false);
     const navigation =
       useNavigation<NativeStackNavigationProp<StackParamList>>();
     const htmlRenderersProps = React.useMemo<Partial<RenderersProps>>(
@@ -315,44 +316,59 @@ const Comment = React.memo<{ id: number; index: number }>(
     const data = comment.data;
 
     return (
-      <RN.View style={commentContainer()}>
-        <RN.View style={byLine}>
+      <React.Fragment>
+        <RN.View style={commentContainer(depth)}>
+          <RN.View style={byLine}>
+            <RN.TouchableWithoutFeedback
+              onPress={() => navigation.navigate("User", { id: data.by })}
+            >
+              <RN.Text style={byStyle()}>@{data.by}</RN.Text>
+            </RN.TouchableWithoutFeedback>
+            <RN.TouchableWithoutFeedback
+              onPress={() =>
+                navigation.push("Thread", {
+                  id: data.id,
+                })
+              }
+            >
+              <RN.Text style={agoStyle()}>
+                {ago.format(new Date(data.time * 1000), "mini")}
+              </RN.Text>
+            </RN.TouchableWithoutFeedback>
+          </RN.View>
+
+          {htmlSource && (
+            <RenderHTML
+              contentWidth={dimensions.width}
+              source={htmlSource}
+              baseStyle={commentContent()}
+              tagsStyles={htmlTagStyles}
+              defaultTextProps={htmlDefaultTextProps}
+              renderersProps={htmlRenderersProps}
+              enableExperimentalBRCollapsing
+              enableExperimentalGhostLinesPrevention
+              enableExperimentalMarginCollapsing
+            />
+          )}
+
           <RN.TouchableWithoutFeedback
-            onPress={() => navigation.navigate("User", { id: data.by })}
+            onPress={() => {
+              setShowingReplies((current) => !current);
+            }}
           >
-            <RN.Text style={byStyle()}>@{data.by}</RN.Text>
+            <RN.Text style={replies()}>
+              {pluralize(data.kids?.length ?? 0, "reply", "replies")}
+            </RN.Text>
           </RN.TouchableWithoutFeedback>
-          <RN.Text style={agoStyle()}>
-            {ago.format(new Date(data.time * 1000), "mini")}
-          </RN.Text>
         </RN.View>
 
-        {htmlSource && (
-          <RenderHTML
-            contentWidth={dimensions.width}
-            source={htmlSource}
-            baseStyle={commentContent()}
-            tagsStyles={htmlTagStyles}
-            defaultTextProps={htmlDefaultTextProps}
-            renderersProps={htmlRenderersProps}
-            enableExperimentalBRCollapsing
-            enableExperimentalGhostLinesPrevention
-            enableExperimentalMarginCollapsing
-          />
-        )}
-
-        <RN.TouchableWithoutFeedback
-          onPress={() =>
-            navigation.push("Thread", {
-              id: data.id,
-            })
-          }
-        >
-          <RN.Text style={replies()}>
-            {pluralize(data.kids?.length ?? 0, "reply", "replies")}
-          </RN.Text>
-        </RN.TouchableWithoutFeedback>
-      </RN.View>
+        {showingReplies &&
+          data.kids &&
+          data.kids.length > 0 &&
+          data.kids.map((id, index) => (
+            <Comment key={id} id={id} index={index} depth={depth + 1} />
+          ))}
+      </React.Fragment>
     );
   },
   (prev, next) => prev.id === next.id
@@ -363,10 +379,17 @@ const container = oneMemo<RN.ViewStyle>((t) => ({
   backgroundColor: t.color.bodyBg,
 }));
 
-const commentContainer = oneMemo<RN.ViewStyle>((t) => ({
+const commentContainer = lazyMemo<number, RN.ViewStyle>((depth) => (t) => ({
   padding: t.space.lg,
-  borderBottomWidth: t.borderWidth.hairline,
-  borderBottomColor: t.color.accent,
+  borderTopWidth: t.borderWidth.hairline,
+  borderTopColor: t.color.accent,
+  ...(depth > 1
+    ? ({
+        borderLeftWidth: 2,
+        borderLeftColor: t.color.primary,
+        marginLeft: t.space.md * depth,
+      } as const)
+    : {}),
 }));
 
 const header = oneMemo<RN.ViewStyle>((t) => ({
@@ -392,11 +415,6 @@ const backButton = oneMemo<RN.ViewStyle>((t) => ({
   borderRadius: t.radius.full,
   marginRight: t.space.md,
   backgroundColor: t.color.accentLight,
-}));
-
-const storyContainer = oneMemo<RN.ViewStyle>((t) => ({
-  borderBottomWidth: t.borderWidth.hairline,
-  borderBottomColor: t.color.accent,
 }));
 
 const title = oneMemo<RN.TextStyle>((t) => ({
@@ -497,6 +515,7 @@ const replies = oneMemo<RN.TextStyle>((t) => ({
   padding: t.space.sm,
   paddingTop: t.space.md,
   paddingLeft: 0,
+  width: "100%",
 }));
 
 const agoStyle = oneMemo<RN.TextStyle>((t) => ({
