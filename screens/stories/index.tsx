@@ -60,15 +60,20 @@ export function Stories(props: StoriesProps) {
     );
   }, [stories.data, filter]);
 
+  const refreshControl = React.useMemo(
+    () => (
+      <RN.RefreshControl
+        refreshing={!stories.data && didMount}
+        onRefresh={() => stories.mutate()}
+      />
+    ),
+    [stories.data, stories.mutate, didMount]
+  );
+
   return (
     <RN.FlatList
       ListHeaderComponent={listHeaderComponent}
-      refreshControl={
-        <RN.RefreshControl
-          refreshing={!stories.data && didMount}
-          onRefresh={() => stories.mutate()}
-        />
-      }
+      refreshControl={refreshControl}
       data={flatListData ?? fauxFlatStories}
       keyExtractor={keyExtractor}
       initialNumToRender={4}

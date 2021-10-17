@@ -1,8 +1,9 @@
 import * as React from "react";
 import * as RN from "react-native";
-import { lazyMemo } from "@/dash";
+import { lazyMemo, useDash } from "@/dash";
 
 export function Skeleton(props: SkeletonProps) {
+  useDash();
   const [fadeAnim] = React.useState(() => new RN.Animated.Value(0));
 
   React.useLayoutEffect(() => {

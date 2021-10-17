@@ -22,22 +22,33 @@ export function User(props: UserProps) {
         headers: { "Content-Type": "application/json" },
       }).then((res) => res.json())
   );
+  const [didMount, setDidMount] = React.useState(false);
+  React.useEffect(() => {
+    if (user.data) {
+      setDidMount(true);
+    }
+  }, [user.data]);
 
   const listHeaderComponent = React.useCallback(() => {
     return <NavigableHeader title={id} />;
   }, []);
+
+  const refreshControl = React.useMemo(
+    () => (
+      <RN.RefreshControl
+        refreshing={!user.data && didMount}
+        onRefresh={() => user.mutate()}
+      />
+    ),
+    [user.data, user.mutate, didMount]
+  );
 
   return (
     <RN.SafeAreaView style={container()}>
       <RN.FlatList
         ListHeaderComponent={listHeaderComponent}
         stickyHeaderIndices={[0]}
-        refreshControl={
-          <RN.RefreshControl
-            refreshing={!user.data}
-            onRefresh={() => user.mutate()}
-          />
-        }
+        refreshControl={refreshControl}
         data={user.data?.submitted ?? fauxStories}
         keyExtractor={keyExtractor}
         initialNumToRender={4}
