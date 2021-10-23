@@ -17,3 +17,5 @@ web-build/
 
 assets/hn.app
 assets/*.tar.gz
+
+.env

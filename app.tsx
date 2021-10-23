@@ -10,6 +10,7 @@ import * as Updates from "expo-updates";
 import * as React from "react";
 import * as RN from "react-native";
 import { enableScreens } from "react-native-screens";
+import * as Sentry from "sentry-expo";
 import { SWRConfig } from "swr";
 import { DashProvider, lazyMemo, oneMemo, useDash } from "@/dash";
 import { BrowserModal } from "@/screens/browser-modal";
@@ -26,6 +27,11 @@ import { Thread } from "@/screens/thread";
 import { User } from "@/screens/user";
 
 registerRootComponent(App);
+
+Sentry.init({
+  dsn: "https://74d59fdf426b4fd1a90f85ef738b23f5@o1049868.ingest.sentry.io/6031164",
+  environment: process.env.STAGE ?? "development",
+});
 
 function App() {
   enableScreens(true);

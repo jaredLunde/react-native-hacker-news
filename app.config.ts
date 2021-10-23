@@ -31,6 +31,19 @@ const config: ExpoConfig = {
   web: {
     favicon: "./assets/favicon.png",
   },
+  plugins: ["sentry-expo"],
+  hooks: {
+    postPublish: [
+      {
+        file: "sentry-expo/upload-sourcemaps",
+        config: {
+          organization: "jaredLunde",
+          project: "hacker-news",
+          authToken: "9981442a345911eca563061c02109a53",
+        },
+      },
+    ],
+  },
 };
 
 export default config;
