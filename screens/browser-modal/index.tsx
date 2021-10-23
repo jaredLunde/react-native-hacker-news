@@ -7,7 +7,6 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Linking from "expo-linking";
 import React from "react";
 import * as RN from "react-native";
-import { Share, useWindowDimensions } from "react-native";
 import type { WebViewNavigation } from "react-native-webview";
 import { WebView } from "react-native-webview";
 import { Icon } from "@/components/icon";
@@ -18,7 +17,7 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
   const {
     tokens: { color },
   } = useDash();
-  const dimensions = useWindowDimensions();
+  const dimensions = RN.useWindowDimensions();
   const ref = React.useRef<WebView>(null);
   const [navigationState, setNavigationState] =
     React.useState<WebViewNavigation | null>(null);
@@ -81,7 +80,7 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
         <RN.TouchableOpacity
           style={footerButton()}
           onPress={() =>
-            Share.share({
+            RN.Share.share({
               title: navigationState?.title ?? route.params.title,
               url: navigationState?.url ?? route.params.url,
             })

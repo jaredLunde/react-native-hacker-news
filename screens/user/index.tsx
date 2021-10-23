@@ -30,7 +30,32 @@ export function User(props: UserProps) {
   }, [user.data]);
 
   const listHeaderComponent = React.useCallback(() => {
-    return <NavigableHeader title={id} />;
+    return (
+      <NavigableHeader
+        title={id}
+        actions={{
+          options: {
+            options: ["Share", "Open in Browser", "Cancel"],
+          },
+          callback(index) {
+            switch (index) {
+              case 0:
+                RN.Share.share({
+                  title: id,
+                  url: `https://news.ycombinator.com/user?id=${id}`,
+                });
+                break;
+              case 1:
+                props.navigation.push("BrowserModal", {
+                  title: id,
+                  url: `https://news.ycombinator.com/user?id=${id}`,
+                });
+                break;
+            }
+          },
+        }}
+      />
+    );
   }, []);
 
   const refreshControl = React.useMemo(

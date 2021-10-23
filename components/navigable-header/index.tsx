@@ -1,20 +1,23 @@
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import type { ActionSheetProps } from "@expo/react-native-action-sheet";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as React from "react";
 import * as RN from "react-native";
 import { Icon } from "@/components/icon";
-import { oneMemo, useDash } from "@/dash";
+import { lazyMemo, oneMemo, useDash } from "@/dash";
 import type { StackParamList } from "@/screens/routers";
 
-export function NavigableHeader({ title }: NavigableHeaderProps) {
+export function NavigableHeader({ title, actions }: NavigableHeaderProps) {
   useDash();
   const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
+  const actionSheet = useActionSheet();
 
   return (
     <RN.SafeAreaView style={headerContainer()}>
       <RN.View style={header()}>
         <RN.TouchableOpacity
-          style={navButton()}
+          style={navButton("visible")}
           onPress={() => navigation.goBack()}
         >
           <Icon name="chevron-left" color="textAccent" size={18} />
@@ -24,9 +27,21 @@ export function NavigableHeader({ title }: NavigableHeaderProps) {
           {title}
         </RN.Text>
 
-        <RN.TouchableOpacity style={navButton()}>
-          <Icon name="more-horizontal" color="textAccent" size={18} />
-        </RN.TouchableOpacity>
+        {actions ? (
+          <RN.TouchableOpacity
+            style={navButton("visible")}
+            onPress={() => {
+              actionSheet.showActionSheetWithOptions(
+                actions.options,
+                actions.callback
+              );
+            }}
+          >
+            <Icon name="more-horizontal" color="textAccent" size={18} />
+          </RN.TouchableOpacity>
+        ) : (
+          <RN.View style={navButton("hidden")} />
+        )}
       </RN.View>
     </RN.SafeAreaView>
   );
@@ -50,14 +65,17 @@ const header = oneMemo<RN.ViewStyle>((t) => ({
   borderBottomColor: t.color.accent,
 }));
 
-const navButton = oneMemo<RN.ViewStyle>((t) => ({
-  alignItems: "center",
-  justifyContent: "center",
-  width: 18 * (t.type.size.base / 16) + t.space.sm * 2,
-  height: 18 * (t.type.size.base / 16) + t.space.sm * 2,
-  borderRadius: t.radius.full,
-  backgroundColor: t.color.accentLight,
-}));
+const navButton = lazyMemo<"hidden" | "visible", RN.ViewStyle>(
+  (visibilty) => (t) => ({
+    alignItems: "center",
+    justifyContent: "center",
+    width: 18 * (t.type.size.base / 16) + t.space.sm * 2,
+    height: 18 * (t.type.size.base / 16) + t.space.sm * 2,
+    borderRadius: t.radius.full,
+    backgroundColor: t.color.accentLight,
+    opacity: visibilty === "visible" ? 1 : 0,
+  })
+);
 
 const titleStyle = oneMemo<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
@@ -69,4 +87,8 @@ const titleStyle = oneMemo<RN.TextStyle>((t) => ({
 
 export interface NavigableHeaderProps {
   title: string;
+  actions: {
+    options: Parameters<ActionSheetProps["showActionSheetWithOptions"]>[0];
+    callback: Parameters<ActionSheetProps["showActionSheetWithOptions"]>[1];
+  };
 }

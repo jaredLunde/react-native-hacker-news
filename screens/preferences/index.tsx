@@ -60,7 +60,21 @@ export function Preferences(props: PreferencesProps) {
 
   return (
     <RN.SafeAreaView style={container()}>
-      <NavigableHeader title="Preferences" />
+      <NavigableHeader
+        title="Preferences"
+        actions={{
+          options: {
+            options: ["Restore default settings", "Cancel"],
+          },
+          callback(index) {
+            switch (index) {
+              case 0:
+                setStorage(defaultPreferences);
+                break;
+            }
+          },
+        }}
+      />
       <RN.ScrollView style={preferencesContainer()}>
         <RN.View style={preferenceGroup()}>
           <RN.View style={preferenceLabelContainer()}>
