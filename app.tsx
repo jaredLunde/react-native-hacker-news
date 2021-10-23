@@ -1,6 +1,7 @@
 import "react-native-url-polyfill/auto";
 import "intl";
 import "intl/locale-data/jsonp/en";
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { registerRootComponent } from "expo";
@@ -61,12 +62,14 @@ function App() {
         },
       }}
     >
-      <DashProvider disableAutoThemeChange>
-        <AppStatusBar />
-        <NavigationContainer>
-          <Tabs />
-        </NavigationContainer>
-      </DashProvider>
+      <ActionSheetProvider>
+        <DashProvider disableAutoThemeChange>
+          <AppStatusBar />
+          <NavigationContainer>
+            <Tabs />
+          </NavigationContainer>
+        </DashProvider>
+      </ActionSheetProvider>
     </SWRConfig>
   );
 }
