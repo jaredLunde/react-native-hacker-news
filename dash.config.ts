@@ -258,32 +258,36 @@ export const colorSystem = {
   blueGray900: "#0f172a",
 } as const;
 
-export const typeSystem = {
-  size: {
-    "2xs": responsiveSize(0.67 * 16),
-    xs: responsiveSize(0.75 * 16),
-    sm: responsiveSize(0.875 * 16),
-    base: responsiveSize(16),
-    lg: responsiveSize(1.125 * 16),
-    xl: responsiveSize(1.225 * 16),
-    "2xl": responsiveSize(1.5 * 16),
-    "3xl": responsiveSize(1.875 * 16),
-    "4xl": responsiveSize(2.25 * 16),
-    "5xl": responsiveSize(3 * 16),
-    "6xl": responsiveSize(4 * 16),
-  },
-  leading(fontSize: number, leading: keyof typeof leadingScale) {
-    return leadingScale[leading] * fontSize;
-  },
-  tracking: {
-    tighter: responsiveSize(-0.05 * 16),
-    tight: responsiveSize(-0.025 * 16),
-    normal: responsiveSize(0 * 16),
-    wide: responsiveSize(0.025 * 16),
-    wider: responsiveSize(0.05 * 16),
-    widest: responsiveSize(0.1 * 16),
-  },
-} as const;
+export function createTypeSystem(baseSize = 16) {
+  const size = {
+    "2xs": responsiveSize(0.67 * baseSize),
+    xs: responsiveSize(0.75 * baseSize),
+    sm: responsiveSize(0.875 * baseSize),
+    base: responsiveSize(baseSize),
+    lg: responsiveSize(1.125 * baseSize),
+    xl: responsiveSize(1.225 * baseSize),
+    "2xl": responsiveSize(1.5 * baseSize),
+    "3xl": responsiveSize(1.875 * baseSize),
+    "4xl": responsiveSize(2.25 * baseSize),
+    "5xl": responsiveSize(3 * baseSize),
+    "6xl": responsiveSize(4 * baseSize),
+  } as const;
+
+  return {
+    size,
+    leading(fontSize: keyof typeof size, leading: keyof typeof leadingScale) {
+      return leadingScale[leading] * size[fontSize];
+    },
+    tracking: {
+      tighter: responsiveSize(-0.05 * baseSize),
+      tight: responsiveSize(-0.025 * baseSize),
+      normal: responsiveSize(0 * baseSize),
+      wide: responsiveSize(0.025 * baseSize),
+      wider: responsiveSize(0.05 * baseSize),
+      widest: responsiveSize(0.1 * baseSize),
+    },
+  } as const;
+}
 
 const leadingScale = {
   none: 1,
@@ -472,7 +476,7 @@ export function createShadowScale(
 
 export const tokens = {
   color: colorSystem,
-  type: typeSystem,
+  type: createTypeSystem(),
   space: spaceScale,
   radius: radiusScale,
   z: zScale,

@@ -1,10 +1,15 @@
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as React from "react";
 import * as RN from "react-native";
 import logo from "@/assets/logo.png";
+import { Icon } from "@/components/icon";
 import { oneMemo, styles, useDash } from "@/dash";
+import type { StackParamList } from "@/screens/routers";
 
 export function LogoHeader({ title }: LogoHeaderProps) {
   useDash();
+  const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
   const date = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     month: "long",
@@ -23,6 +28,11 @@ export function LogoHeader({ title }: LogoHeaderProps) {
           </RN.TouchableWithoutFeedback>
           <RN.Text style={currentDate()}>{date}</RN.Text>
         </RN.View>
+        <RN.TouchableWithoutFeedback
+          onPress={() => navigation.push("Preferences", {})}
+        >
+          <Icon name="settings" color="textAccent" size={18} />
+        </RN.TouchableWithoutFeedback>
       </RN.View>
     </RN.SafeAreaView>
   );

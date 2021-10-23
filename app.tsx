@@ -11,6 +11,7 @@ import { enableScreens } from "react-native-screens";
 import { SWRConfig } from "swr";
 import { DashProvider, lazyMemo, oneMemo, useDash } from "@/dash";
 import { BrowserModal } from "@/screens/browser-modal";
+import { Preferences } from "@/screens/preferences";
 import {
   AskStack,
   HomeStack,
@@ -77,6 +78,7 @@ function App() {
 }
 
 function Tabs() {
+  useDash();
   return (
     <RN.View style={sceneContainer()}>
       <Tab.Navigator
@@ -203,6 +205,7 @@ function HomeScreens() {
       />
       <HomeStack.Screen name="User" component={User} />
       <HomeStack.Screen name="Thread" component={Thread} />
+      <HomeStack.Screen name="Preferences" component={Preferences} />
       <HomeStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
@@ -226,6 +229,7 @@ function ShowScreens() {
       />
       <ShowStack.Screen name="User" component={User} />
       <ShowStack.Screen name="Thread" component={Thread} />
+      <ShowStack.Screen name="Preferences" component={Preferences} />
       <ShowStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
@@ -249,6 +253,7 @@ function AskScreens() {
       />
       <AskStack.Screen name="User" component={User} />
       <AskStack.Screen name="Thread" component={Thread} />
+      <AskStack.Screen name="Preferences" component={Preferences} />
       <AskStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
@@ -272,6 +277,7 @@ function JobsScreens() {
       />
       <JobsStack.Screen name="User" component={User} />
       <JobsStack.Screen name="Thread" component={Thread} />
+      <JobsStack.Screen name="Preferences" component={Preferences} />
       <JobsStack.Group
         screenOptions={{ headerShown: false, presentation: "modal" }}
       >
