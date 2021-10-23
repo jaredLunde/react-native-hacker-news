@@ -2,7 +2,6 @@ import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as React from "react";
 import * as RN from "react-native";
-import logo from "@/assets/logo.png";
 import { Icon } from "@/components/icon";
 import { oneMemo, styles, useDash } from "@/dash";
 import type { StackParamList } from "@/screens/routers";
@@ -22,7 +21,7 @@ export function LogoHeader({ title }: LogoHeaderProps) {
         <RN.View>
           <RN.TouchableWithoutFeedback>
             <RN.View style={logoContainer()}>
-              <RN.Image style={logoMark()} source={logo} />
+              <RN.View style={logoMark()} />
               <RN.Text style={logoType()}>{title}</RN.Text>
             </RN.View>
           </RN.TouchableWithoutFeedback>
@@ -31,7 +30,9 @@ export function LogoHeader({ title }: LogoHeaderProps) {
         <RN.TouchableWithoutFeedback
           onPress={() => navigation.push("Preferences", {})}
         >
-          <Icon name="settings" color="textAccent" size={18} />
+          <RN.View style={settingsButton()}>
+            <Icon name="settings" color="textAccent" size={18} />
+          </RN.View>
         </RN.TouchableWithoutFeedback>
       </RN.View>
     </RN.SafeAreaView>
@@ -46,7 +47,7 @@ const header = oneMemo<RN.ViewStyle>((t) => ({
   flexDirection: "row",
   width: "100%",
   justifyContent: "space-between",
-  alignItems: "center",
+  alignItems: "flex-start",
   backgroundColor: t.color.headerBg,
   paddingTop: t.space.md,
   paddingBottom: t.space.md,
@@ -64,11 +65,13 @@ const logoContainer = styles.one<RN.ViewStyle>({
   width: "100%",
 });
 
-const logoMark = oneMemo<RN.ImageStyle>((t) => ({
+const logoMark = oneMemo<RN.ViewStyle>((t) => ({
   width: t.type.size.lg,
   height: t.type.size.lg,
-  borderRadius: t.radius.md,
-  marginRight: t.space.md,
+  borderRadius: t.radius.md * (t.type.size.base / 16),
+  marginRight: t.space.sm,
+  borderColor: t.color.primary,
+  borderWidth: 4 * (t.type.size.base / 16),
 }));
 
 const logoType = oneMemo<RN.TextStyle>((t) => ({
@@ -83,6 +86,11 @@ const currentDate = oneMemo<RN.ViewStyle>((t) => ({
   lineHeight: t.type.size["lg"] * 1.15,
   fontWeight: "900",
   color: t.color.textAccent,
+}));
+
+const settingsButton = oneMemo<RN.ViewStyle>((t) => ({
+  padding: t.space.sm,
+  paddingRight: 0,
 }));
 
 export interface LogoHeaderProps {

@@ -11,7 +11,7 @@ import { enableScreens } from "react-native-screens";
 import { SWRConfig } from "swr";
 import { DashProvider, lazyMemo, oneMemo, useDash } from "@/dash";
 import { BrowserModal } from "@/screens/browser-modal";
-import { Preferences } from "@/screens/preferences";
+import { Preferences, usePreferences } from "@/screens/preferences";
 import {
   AskStack,
   HomeStack,
@@ -26,7 +26,6 @@ import { User } from "@/screens/user";
 registerRootComponent(App);
 
 function App() {
-  const colorScheme = RN.useColorScheme();
   enableScreens(true);
 
   return (
@@ -51,24 +50,19 @@ function App() {
           };
 
           // Subscribe to the app state change events
-          RN.AppState.addEventListener("change", onAppStateChange);
+          const listener = RN.AppState.addEventListener(
+            "change",
+            onAppStateChange
+          );
 
           return () => {
-            RN.AppState.removeEventListener("change", onAppStateChange);
+            listener.remove();
           };
         },
       }}
     >
-      <DashProvider theme={colorScheme as any}>
-        <StatusBar
-          style={
-            colorScheme === "light"
-              ? "dark"
-              : colorScheme === "dark"
-              ? "light"
-              : "auto"
-          }
-        />
+      <DashProvider disableAutoThemeChange>
+        <AppStatusBar />
         <NavigationContainer>
           <Tabs />
         </NavigationContainer>
@@ -77,8 +71,19 @@ function App() {
   );
 }
 
+function AppStatusBar() {
+  const { theme } = useDash();
+  return (
+    <StatusBar
+      style={theme === "light" ? "dark" : theme === "dark" ? "light" : "auto"}
+    />
+  );
+}
+
 function Tabs() {
   useDash();
+  usePreferences();
+
   return (
     <RN.View style={sceneContainer()}>
       <Tab.Navigator

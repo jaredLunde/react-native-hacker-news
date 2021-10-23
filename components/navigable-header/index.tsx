@@ -14,7 +14,7 @@ export function NavigableHeader({ title }: NavigableHeaderProps) {
     <RN.SafeAreaView style={headerContainer()}>
       <RN.View style={header()}>
         <RN.TouchableOpacity
-          style={backButton()}
+          style={navButton()}
           onPress={() => navigation.goBack()}
         >
           <Icon name="chevron-left" color="textAccent" size={18} />
@@ -24,7 +24,7 @@ export function NavigableHeader({ title }: NavigableHeaderProps) {
           {title}
         </RN.Text>
 
-        <RN.TouchableOpacity style={backButton()}>
+        <RN.TouchableOpacity style={navButton()}>
           <Icon name="more-horizontal" color="textAccent" size={18} />
         </RN.TouchableOpacity>
       </RN.View>
@@ -50,18 +50,18 @@ const header = oneMemo<RN.ViewStyle>((t) => ({
   borderBottomColor: t.color.accent,
 }));
 
-const backButton = oneMemo<RN.ViewStyle>((t) => ({
+const navButton = oneMemo<RN.ViewStyle>((t) => ({
   alignItems: "center",
   justifyContent: "center",
-  width: 18 + t.space.sm * 2,
-  height: 18 + t.space.sm * 2,
+  width: 18 * (t.type.size.base / 16) + t.space.sm * 2,
+  height: 18 * (t.type.size.base / 16) + t.space.sm * 2,
   borderRadius: t.radius.full,
   backgroundColor: t.color.accentLight,
 }));
 
 const titleStyle = oneMemo<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
-  fontSize: t.type.size["xs"],
+  fontSize: t.type.size.sm,
   fontWeight: "700",
   flex: 1,
   textAlign: "center",

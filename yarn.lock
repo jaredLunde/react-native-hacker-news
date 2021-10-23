@@ -1302,10 +1302,10 @@
   dependencies:
     chalk "^4.0.0"
 
-"@dash-ui/react-native@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@dash-ui/react-native/-/react-native-1.4.0.tgz#992ad396bdbb841ffe11921e4765a579c5da7c9e"
-  integrity sha512-KGxxN4kDgILD0XtIRsdsP9U2hZJ+MvIZMaaqpM3XHCCD1i2kbXtTXKpy3VV67dQ4Gor1LCG/DuLNNNuOagcLHg==
+"@dash-ui/react-native@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@dash-ui/react-native/-/react-native-1.5.0.tgz#85301848d398fea6ac18e11be1c9c8c231d6741f"
+  integrity sha512-ZyDxLcijyalhVoG1FaA3hGk/d0503nxADhXAWl8XGrtBK2LUArnXjrfqF1ysNcR3pJTZ092RTF4CcfKXi8pEsw==
   dependencies:
     "@types/clone-deep" "^4.0.1"
     "@types/css-to-react-native" "^3.0.0"

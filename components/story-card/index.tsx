@@ -147,7 +147,7 @@ function Story({ data, index }: { data: HackerNewsStory; index: number }) {
         </RN.View>
 
         <RN.Text style={footerText()}>
-          ⇧{data.score} &bull;{" "}
+          <RN.Text style={score()}>⇧{data.score}</RN.Text> &bull;{" "}
           <RN.TouchableWithoutFeedback
             onPress={() => navigation.push("Thread", { id: data.id })}
           >
@@ -325,7 +325,7 @@ function AskStory({ data, index }: { data: HackerNewsAsk; index: number }) {
         </RN.View>
 
         <RN.Text style={footerText()}>
-          ⇧{data.score} &bull;{" "}
+          <RN.Text style={score()}>⇧{data.score}</RN.Text> &bull;{" "}
           <RN.TouchableWithoutFeedback
             onPress={() => navigation.push("Thread", { id: data.id })}
           >
@@ -371,7 +371,7 @@ function CommentStory({
           })
         }
       >
-        <RN.Text>{parentData.title}</RN.Text>
+        <RN.Text style={commentStoryTitle()}>{parentData.title}</RN.Text>
       </RN.TouchableWithoutFeedback>
       <RN.TouchableWithoutFeedback
         onPress={() =>
@@ -380,7 +380,11 @@ function CommentStory({
           })
         }
       >
-        <RN.Text ellipsizeMode="tail" style={storyText()} numberOfLines={4}>
+        <RN.Text
+          ellipsizeMode="tail"
+          style={commentStoryText()}
+          numberOfLines={4}
+        >
           {stripTags(htmlEntities.decode(data.text), [], " ")}
         </RN.Text>
       </RN.TouchableWithoutFeedback>
@@ -419,6 +423,11 @@ const storySkeleton = lazyMemo<number, RN.ViewStyle>((index) => (t) => ({
   borderRadius: t.radius.secondary,
 }));
 
+const score = oneMemo<RN.TextStyle>((t) => ({
+  color: t.color.primary,
+  fontWeight: "700",
+}));
+
 const storyImage = lazyMemo<number, RN.ImageStyle>((index: number) => (t) => ({
   width: "100%",
   height: index === 0 || index > 4 ? 172 : 96,
@@ -433,8 +442,8 @@ const hostContainerStyle: RN.ViewStyle = {
 };
 
 const favicon = oneMemo<RN.ImageStyle>((t) => ({
-  width: 20,
-  height: 20,
+  width: t.type.size.base,
+  height: t.type.size.base,
   borderRadius: t.radius.md,
   marginRight: t.space.sm,
 }));
@@ -458,6 +467,24 @@ const storyTitle = lazyMemo<number, RN.TextStyle>((index: number) => (t) => ({
 
 const storyText = oneMemo<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
+  fontSize: t.type.size.xs,
+  fontWeight: "400",
+  letterSpacing: t.type.tracking.tight,
+  paddingTop: t.space.sm,
+  paddingBottom: t.space.sm,
+}));
+
+const commentStoryTitle = oneMemo<RN.TextStyle>((t) => ({
+  color: t.color.textAccent,
+  fontSize: t.type.size.xs,
+  fontWeight: "700",
+  letterSpacing: t.type.tracking.tight,
+  paddingTop: t.space.sm,
+  paddingBottom: t.space.sm,
+}));
+
+const commentStoryText = oneMemo<RN.TextStyle>((t) => ({
+  color: t.color.textPrimary,
   fontSize: t.type.size.xs,
   fontWeight: "400",
   letterSpacing: t.type.tracking.tight,

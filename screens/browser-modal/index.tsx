@@ -30,7 +30,7 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
           style={closeButton()}
           onPress={() => navigation.goBack()}
         >
-          <Icon name="x" size={18} color="textAccent" />
+          <Icon name="x" size={14} color="textAccent" />
         </RN.TouchableOpacity>
 
         <RN.Text style={title()} numberOfLines={1} ellipsizeMode="tail">
@@ -56,10 +56,12 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
           style={footerButton()}
           onPress={() => ref.current?.goBack()}
         >
-          <Icon
+          <Feather
             name="chevron-left"
-            size={24}
-            color={navigationState?.canGoBack ? "textPrimary" : "textAccent"}
+            size={responsiveSize(24)}
+            color={
+              navigationState?.canGoBack ? color.textPrimary : color.textAccent
+            }
           />
         </RN.TouchableOpacity>
 
@@ -67,10 +69,12 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
           style={footerButton()}
           onPress={() => ref.current?.goForward()}
         >
-          <Icon
+          <Feather
             name="chevron-right"
-            size={24}
-            color={navigationState?.canGoBack ? "textPrimary" : "textAccent"}
+            size={responsiveSize(24)}
+            color={
+              navigationState?.canGoBack ? color.textPrimary : color.textAccent
+            }
           />
         </RN.TouchableOpacity>
 
@@ -131,8 +135,8 @@ const modalHeader = oneMemo<RN.ViewStyle>((t) => ({
 const closeButton = oneMemo<RN.ViewStyle>((t) => ({
   alignItems: "center",
   justifyContent: "center",
-  width: 18 + t.space.sm * 2,
-  height: 18 + t.space.sm * 2,
+  width: 18 * (t.type.size.base / 16) + t.space.sm * 2,
+  height: 18 * (t.type.size.base / 16) + t.space.sm * 2,
   borderRadius: t.radius.full,
   marginRight: t.space.md,
   backgroundColor: t.color.accentLight,

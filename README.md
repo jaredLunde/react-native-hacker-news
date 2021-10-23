@@ -50,3 +50,7 @@ yarn && yarn ios
 ---
 
 <img src='.readme/light-mode-thread-scrolled.png' width=300> <img src='.readme/dark-mode-thread-scrolled.png' width=300>
+
+---
+
+<img src='.readme/light-mode-preferences.png' width=300> <img src='.readme/dark-mode-preferences.png' width=300>
