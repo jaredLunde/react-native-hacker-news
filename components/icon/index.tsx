@@ -4,11 +4,11 @@ import type { AppColors } from "@/dash";
 import { responsiveSize, useDash } from "@/dash";
 
 export const Icon = React.memo(function Icon(props: IconProps) {
-  const color = useDash().tokens.color;
+  const { color, type } = useDash().tokens;
   return (
     <Feather
       {...props}
-      size={responsiveSize(props.size)}
+      size={responsiveSize(props.size * (type.size.base / 16))}
       color={color[props.color]}
     />
   );

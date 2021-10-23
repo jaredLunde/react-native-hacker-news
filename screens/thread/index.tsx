@@ -555,8 +555,8 @@ const floatingHeader = oneMemo<RN.ViewStyle>((t) => ({
 const backButton = oneMemo<RN.ViewStyle>((t) => ({
   alignItems: "center",
   justifyContent: "center",
-  width: 18 + t.space.sm * 2,
-  height: 18 + t.space.sm * 2,
+  width: 18 * (t.type.size.base / 16) + t.space.sm * 2,
+  height: 18 * (t.type.size.base / 16) + t.space.sm * 2,
   borderRadius: t.radius.full,
   marginRight: t.space.md,
   backgroundColor: t.color.accentLight,

@@ -13,6 +13,7 @@ export type StackParamList = {
   User: { id: string };
   BrowserModal: { title: string | undefined; url: string };
   Thread: { id: number };
+  Preferences: {};
 };
 
 export type TabParamList = {
