@@ -6,6 +6,7 @@ import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { registerRootComponent } from "expo";
 import { StatusBar } from "expo-status-bar";
+import * as Updates from "expo-updates";
 import * as React from "react";
 import * as RN from "react-native";
 import { enableScreens } from "react-native-screens";
@@ -28,6 +29,20 @@ registerRootComponent(App);
 
 function App() {
   enableScreens(true);
+
+  // Enables OTA updates
+  React.useLayoutEffect(() => {
+    const listener = Updates.addListener(async (update) => {
+      if (update.type === Updates.UpdateEventType.UPDATE_AVAILABLE) {
+        await Updates.fetchUpdateAsync();
+        await Updates.reloadAsync();
+      }
+    });
+
+    return () => {
+      listener.remove();
+    };
+  }, []);
 
   return (
     <SWRConfig

@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Slider from "@react-native-community/slider";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Application from "expo-application";
+import * as Updates from "expo-updates";
 import * as React from "react";
 import * as RN from "react-native";
 import { NavigableHeader } from "@/components/navigable-header";
@@ -160,7 +161,12 @@ export function Preferences(props: PreferencesProps) {
           </RN.View>
         </RN.View>
 
-        <RN.Text style={version()}>v{Application.nativeBuildVersion}</RN.Text>
+        <RN.Text style={version()}>
+          v{Application.nativeBuildVersion}{" "}
+          {Updates.updateId && (
+            <React.Fragment>&bull; {Updates.updateId}</React.Fragment>
+          )}
+        </RN.Text>
       </RN.ScrollView>
     </RN.SafeAreaView>
   );
