@@ -273,15 +273,24 @@ function CommentThread({
 }) {
   const { theme } = useDash();
   const parents = useParents(data.parent);
-  const [parentStory, ...parentComments] = parents.data ?? [];
+  const parentComments = parents.data ?? [];
+  const parentStory = parentComments[0];
   const dimensions = RN.useWindowDimensions();
   const [didMount, setDidMount] = React.useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
+  const [containerHeight, setContainerHeight] = React.useState<number>(0);
+  const [mainHeight, setMainHeight] = React.useState<number>(0);
+  const listRef = React.useRef<RN.FlatList>(null);
+
   React.useEffect(() => {
-    if (data) {
+    if (data && containerHeight && mainHeight && listRef.current && !didMount) {
+      listRef.current.scrollToOffset({
+        offset: containerHeight - mainHeight - 64,
+      });
       setDidMount(true);
     }
-  }, [data]);
+  }, [didMount, data, containerHeight, mainHeight]);
+
   const htmlRenderersProps = React.useMemo<Partial<RenderersProps>>(
     () => ({
       a: {
@@ -305,11 +314,23 @@ function CommentThread({
       },
     [data]
   );
+  const parentStoryHtml = React.useMemo(
+    () =>
+      parentStory &&
+      "text" in parentStory &&
+      parentStory.text && { html: linkify(parentStory.text) },
+    [parentStory]
+  );
 
   const listHeaderComponent = React.useCallback(
     () =>
       !data || !parentStory ? null : (
-        <RN.View>
+        <RN.View
+          onLayout={(event) => {
+            const layout = event.nativeEvent.layout;
+            setContainerHeight(layout.height);
+          }}
+        >
           <RN.SafeAreaView>
             <RN.View style={header()}>
               <RN.TouchableOpacity
@@ -333,10 +354,10 @@ function CommentThread({
             </RN.Text>
           </RN.TouchableWithoutFeedback>
 
-          {htmlSource && (
+          {parentStoryHtml && (
             <RenderHTML
               contentWidth={dimensions.width}
-              source={htmlSource}
+              source={parentStoryHtml}
               baseStyle={content()}
               tagsStyles={htmlTagStyles}
               defaultTextProps={htmlDefaultTextProps}
@@ -347,26 +368,61 @@ function CommentThread({
             />
           )}
 
-          <RN.View style={storyByLine()}>
-            <RN.TouchableWithoutFeedback
-              onPress={() => navigation.navigate("User", { id: data.by })}
-            >
-              <RN.Text style={byStyle()}>@{data.by}</RN.Text>
-            </RN.TouchableWithoutFeedback>
-            <RN.Text style={agoStyle()}>
-              {ago.format(new Date(data.time * 1000), "mini")}
-            </RN.Text>
+          {(parentComments.slice(1) as HackerNewsComment[]).map((comment) => (
+            <ParentComment
+              key={comment.id}
+              comment={comment}
+              htmlRenderersProps={htmlRenderersProps}
+              contentWidth={dimensions.width}
+              htmlTagStyles={htmlTagStyles}
+              navigation={navigation}
+            />
+          ))}
+
+          <RN.View
+            style={parentCommentContainer()}
+            onLayout={(event) => {
+              const layout = event.nativeEvent.layout;
+              setMainHeight(layout.height);
+            }}
+          >
+            <RN.View style={parentCommentMarker()} />
+            <RN.View style={byLine}>
+              <RN.TouchableWithoutFeedback
+                onPress={() => navigation.navigate("User", { id: data.by })}
+              >
+                <RN.Text style={byStyle()}>@{data.by}</RN.Text>
+              </RN.TouchableWithoutFeedback>
+              <RN.Text style={agoStyle()}>
+                {ago.format(new Date(data.time * 1000), "mini")}
+              </RN.Text>
+            </RN.View>
+
+            {htmlSource && (
+              <RenderHTML
+                contentWidth={dimensions.width}
+                source={htmlSource}
+                baseStyle={commentStoryContent()}
+                tagsStyles={htmlTagStyles}
+                defaultTextProps={htmlDefaultTextProps}
+                renderersProps={htmlRenderersProps}
+                enableExperimentalBRCollapsing
+                enableExperimentalGhostLinesPrevention
+                enableExperimentalMarginCollapsing
+              />
+            )}
           </RN.View>
         </RN.View>
       ),
     [
       data,
-      htmlSource,
+      parentStory,
+      parentStoryHtml,
       dimensions.width,
       htmlTagStyles,
       htmlRenderersProps,
+      htmlSource,
       navigation,
-      parentStory,
     ]
   );
 
@@ -388,8 +444,9 @@ function CommentThread({
         maxToRenderPerBatch={5}
         updateCellsBatchingPeriod={100}
         windowSize={3}
-        renderItem={renderItem}
+        renderItem={renderThreadedItem}
         style={container()}
+        ref={listRef}
       />
     </RN.View>
   );
@@ -401,9 +458,70 @@ function renderItem({ item, index }: { item: number; index: number }) {
   return <Comment id={item} index={index} depth={1} />;
 }
 
+function renderThreadedItem({ item, index }: { item: number; index: number }) {
+  return <Comment id={item} index={index} depth={3} />;
+}
+
 function keyExtractor(item: number, index: number) {
   return item === -1 ? index.toString() : item.toString();
 }
+
+const ParentComment = React.memo<{
+  comment: HackerNewsComment;
+  contentWidth: number;
+  htmlRenderersProps: Partial<RenderersProps>;
+  htmlTagStyles: MixedStyleRecord;
+  navigation: NativeStackNavigationProp<StackParamList>;
+}>(function ParentComment({
+  comment,
+  contentWidth,
+  htmlRenderersProps,
+  htmlTagStyles,
+  navigation,
+}) {
+  const htmlSource = React.useMemo(
+    () => ({
+      html: linkify(comment.text),
+    }),
+    [comment.text]
+  );
+
+  return (
+    <RN.View style={parentCommentContainer()}>
+      <RN.View style={parentCommentMarker()} />
+      <RN.View style={byLine}>
+        <RN.TouchableWithoutFeedback
+          onPress={() => navigation.navigate("User", { id: comment.by })}
+        >
+          <RN.Text style={byStyle()}>@{comment.by}</RN.Text>
+        </RN.TouchableWithoutFeedback>
+        <RN.TouchableWithoutFeedback
+          onPress={() =>
+            navigation.push("Thread", {
+              id: comment.id,
+            })
+          }
+        >
+          <RN.Text style={agoStyle()}>
+            {ago.format(new Date(comment.time * 1000), "mini")}
+          </RN.Text>
+        </RN.TouchableWithoutFeedback>
+      </RN.View>
+
+      <RenderHTML
+        contentWidth={contentWidth}
+        source={htmlSource}
+        baseStyle={commentContent()}
+        tagsStyles={htmlTagStyles}
+        defaultTextProps={htmlDefaultTextProps}
+        renderersProps={htmlRenderersProps}
+        enableExperimentalBRCollapsing
+        enableExperimentalGhostLinesPrevention
+        enableExperimentalMarginCollapsing
+      />
+    </RN.View>
+  );
+});
 
 const Comment = React.memo<{ id: number; index: number; depth: number }>(
   function Comment({ id, depth }) {
@@ -537,6 +655,24 @@ const commentContainer = lazyMemo<number, RN.ViewStyle>((depth) => (t) => ({
     : {}),
 }));
 
+const parentCommentContainer = oneMemo<RN.ViewStyle>((t) => ({
+  padding: t.space.lg,
+  paddingTop: 0,
+  marginLeft: t.space.md,
+  borderLeftWidth: 2,
+  borderLeftColor: t.color.primary,
+}));
+
+const parentCommentMarker = oneMemo<RN.ViewStyle>((t) => ({
+  position: "absolute",
+  left: -5,
+  top: 0,
+  width: 8,
+  height: 8,
+  borderRadius: t.radius.full,
+  backgroundColor: t.color.primary,
+}));
+
 const header = oneMemo<RN.ViewStyle>((t) => ({
   flexDirection: "row",
   alignItems: "center",
@@ -573,7 +709,7 @@ const title = oneMemo<RN.TextStyle>((t) => ({
 
 const subtitle = oneMemo<RN.TextStyle>((t) => ({
   color: t.color.textPrimary,
-  fontSize: t.type.size.sm,
+  fontSize: t.type.size.xs,
   fontWeight: "600",
   padding: t.space.lg,
   paddingTop: t.space.md,
@@ -621,6 +757,12 @@ const content = oneMemo((t) => ({
   padding: t.space.lg,
   paddingTop: 0,
   paddingBottom: 0,
+}));
+
+const commentStoryContent = oneMemo((t) => ({
+  color: t.color.textPrimary,
+  fontSize: t.type.size.sm,
+  fontWeight: "400",
 }));
 
 const commentContent = oneMemo((t) => ({
