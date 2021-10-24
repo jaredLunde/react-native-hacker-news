@@ -39,7 +39,6 @@ const config: ExpoConfig = {
         config: {
           organization: "jaredLunde",
           project: "hacker-news",
-          authToken: "9981442a345911eca563061c02109a53",
         },
       },
     ],
