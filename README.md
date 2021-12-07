@@ -8,7 +8,7 @@
 
 > Scan the QR code below with your camera app to open the app in Expo Go
 
-<img src='.readme/open-in-expo.png' width=300> <img src='.readme/dark-mode.png' width=300>
+<img src='.readme/open-in-expo.png' width=300>
 
 ## Getting started
 
