@@ -1,13 +1,6 @@
 import { createStyles } from "@dash-ui/react-native";
-import type {
-  RNStyles,
-  StyleCallback,
-  StyledCallback,
-  StyleMap,
-} from "@dash-ui/react-native";
-import memoize from "@essentials/memoize-one";
+import type { RNStyles } from "@dash-ui/react-native";
 import * as RN from "react-native";
-import type { JsonValue, ValueOf } from "type-fest";
 
 export const colorSystem = {
   current: "currentColor",
