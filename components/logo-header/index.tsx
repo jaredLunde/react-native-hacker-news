@@ -3,7 +3,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as React from "react";
 import * as RN from "react-native";
 import { Icon } from "@/components/icon";
-import { oneMemo, styles, useDash } from "@/dash";
+import { styles, useDash } from "@/dash";
 import type { StackParamList } from "@/screens/routers";
 
 export function LogoHeader({ title }: LogoHeaderProps) {
@@ -39,11 +39,11 @@ export function LogoHeader({ title }: LogoHeaderProps) {
   );
 }
 
-const headerContainer = oneMemo<RN.ViewStyle>((t) => ({
+const headerContainer = styles.one<RN.ViewStyle>((t) => ({
   backgroundColor: t.color.headerBg,
 }));
 
-const header = oneMemo<RN.ViewStyle>((t) => ({
+const header = styles.one<RN.ViewStyle>((t) => ({
   flexDirection: "row",
   width: "100%",
   justifyContent: "space-between",
@@ -65,7 +65,7 @@ const logoContainer = styles.one<RN.ViewStyle>({
   width: "100%",
 });
 
-const logoMark = oneMemo<RN.ViewStyle>((t) => ({
+const logoMark = styles.one<RN.ViewStyle>((t) => ({
   width: t.type.size.lg,
   height: t.type.size.lg,
   borderRadius: t.radius.md * (t.type.size.base / 16),
@@ -74,13 +74,13 @@ const logoMark = oneMemo<RN.ViewStyle>((t) => ({
   borderWidth: 4 * (t.type.size.base / 16),
 }));
 
-const logoType = oneMemo<RN.TextStyle>((t) => ({
+const logoType = styles.one<RN.TextStyle>((t) => ({
   fontSize: t.type.size.lg,
   color: t.color.textPrimary,
   fontWeight: "900",
 }));
 
-const currentDate = oneMemo<RN.ViewStyle>((t) => ({
+const currentDate = styles.one<RN.ViewStyle>((t) => ({
   backgroundColor: t.color.headerBg,
   fontSize: t.type.size["lg"],
   lineHeight: t.type.size["lg"] * 1.15,
@@ -88,7 +88,7 @@ const currentDate = oneMemo<RN.ViewStyle>((t) => ({
   color: t.color.textAccent,
 }));
 
-const settingsButton = oneMemo<RN.ViewStyle>((t) => ({
+const settingsButton = styles.one<RN.ViewStyle>((t) => ({
   padding: t.space.sm,
   paddingRight: 0,
 }));

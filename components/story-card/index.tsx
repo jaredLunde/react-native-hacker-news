@@ -6,7 +6,7 @@ import * as RN from "react-native";
 import stripTags from "striptags";
 import useSWR from "swr";
 import { Skeleton } from "@/components/skeleton";
-import { lazyMemo, oneMemo, useDash } from "@/dash";
+import { styles, useDash } from "@/dash";
 import { useMetadata } from "@/hooks/use-metadata";
 import { useParents } from "@/hooks/use-parents";
 import type { StackParamList } from "@/screens/routers";
@@ -409,31 +409,33 @@ function CommentStory({
   );
 }
 
-const storyContainer = lazyMemo<number, RN.ViewStyle>((index) => (t) => ({
+const storyContainer = styles.lazy<number, RN.ViewStyle>((index) => (t) => ({
   width: index === 0 || index > 4 ? "100%" : "50%",
   padding: t.space.lg,
   paddingTop: index === 0 ? t.space.xl : index < 5 ? t.space.md : t.space.lg,
   paddingBottom: index === 0 ? t.space.xl : index < 5 ? t.space.lg : t.space.lg,
 }));
 
-const storySkeleton = lazyMemo<number, RN.ViewStyle>((index) => (t) => ({
+const storySkeleton = styles.lazy<number, RN.ViewStyle>((index) => (t) => ({
   width: "100%",
   height: index === 0 || index > 4 ? 172 : 96,
   marginBottom: t.space.md,
   borderRadius: t.radius.secondary,
 }));
 
-const score = oneMemo<RN.TextStyle>((t) => ({
+const score = styles.one<RN.TextStyle>((t) => ({
   color: t.color.primary,
   fontWeight: "700",
 }));
 
-const storyImage = lazyMemo<number, RN.ImageStyle>((index: number) => (t) => ({
-  width: "100%",
-  height: index === 0 || index > 4 ? 172 : 96,
-  marginBottom: t.space.md,
-  borderRadius: t.radius.secondary,
-}));
+const storyImage = styles.lazy<number, RN.ImageStyle>(
+  (index: number) => (t) => ({
+    width: "100%",
+    height: index === 0 || index > 4 ? 172 : 96,
+    marginBottom: t.space.md,
+    borderRadius: t.radius.secondary,
+  })
+);
 
 const hostContainerStyle: RN.ViewStyle = {
   width: "100%",
@@ -441,14 +443,14 @@ const hostContainerStyle: RN.ViewStyle = {
   alignItems: "center",
 };
 
-const favicon = oneMemo<RN.ImageStyle>((t) => ({
+const favicon = styles.one<RN.ImageStyle>((t) => ({
   width: t.type.size.base,
   height: t.type.size.base,
   borderRadius: t.radius.md,
   marginRight: t.space.sm,
 }));
 
-const hostname = oneMemo<RN.TextStyle>((t) => ({
+const hostname = styles.one<RN.TextStyle>((t) => ({
   flex: 1,
   width: "100%",
   color: t.color.textAccent,
@@ -456,16 +458,18 @@ const hostname = oneMemo<RN.TextStyle>((t) => ({
   fontWeight: "300",
 }));
 
-const storyTitle = lazyMemo<number, RN.TextStyle>((index: number) => (t) => ({
-  color: t.color.textPrimary,
-  fontSize: t.type.size[index === 0 ? "6xl" : index < 5 ? "base" : "sm"],
-  fontWeight: index === 0 ? "900" : index < 5 ? "800" : "700",
-  letterSpacing: index < 4 ? t.type.tracking.tighter : t.type.tracking.tight,
-  paddingTop: t.space.sm,
-  paddingBottom: t.space.sm,
-}));
+const storyTitle = styles.lazy<number, RN.TextStyle>(
+  (index: number) => (t) => ({
+    color: t.color.textPrimary,
+    fontSize: t.type.size[index === 0 ? "6xl" : index < 5 ? "base" : "sm"],
+    fontWeight: index === 0 ? "900" : index < 5 ? "800" : "700",
+    letterSpacing: index < 4 ? t.type.tracking.tighter : t.type.tracking.tight,
+    paddingTop: t.space.sm,
+    paddingBottom: t.space.sm,
+  })
+);
 
-const storyText = oneMemo<RN.TextStyle>((t) => ({
+const storyText = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   fontSize: t.type.size.xs,
   fontWeight: "400",
@@ -474,7 +478,7 @@ const storyText = oneMemo<RN.TextStyle>((t) => ({
   paddingBottom: t.space.sm,
 }));
 
-const commentStoryTitle = oneMemo<RN.TextStyle>((t) => ({
+const commentStoryTitle = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   fontSize: t.type.size.xs,
   fontWeight: "700",
@@ -483,7 +487,7 @@ const commentStoryTitle = oneMemo<RN.TextStyle>((t) => ({
   paddingBottom: t.space.sm,
 }));
 
-const commentStoryText = oneMemo<RN.TextStyle>((t) => ({
+const commentStoryText = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textPrimary,
   fontSize: t.type.size.xs,
   fontWeight: "400",
@@ -498,7 +502,7 @@ const byLine: RN.ViewStyle = {
   justifyContent: "space-between",
 };
 
-const byStyle = oneMemo<RN.TextStyle>((t) => ({
+const byStyle = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   fontSize: t.type.size["2xs"],
   fontWeight: "300",
@@ -507,13 +511,13 @@ const byStyle = oneMemo<RN.TextStyle>((t) => ({
   paddingLeft: 0,
 }));
 
-const agoStyle = oneMemo<RN.TextStyle>((t) => ({
+const agoStyle = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   fontSize: t.type.size["2xs"],
   fontWeight: "300",
 }));
 
-const footerText = oneMemo<RN.TextStyle>((t) => ({
+const footerText = styles.one<RN.TextStyle>((t) => ({
   fontWeight: "600",
   color: t.color.textAccent,
   fontSize: t.type.size["2xs"],

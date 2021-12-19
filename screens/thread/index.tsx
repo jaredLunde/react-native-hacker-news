@@ -14,7 +14,7 @@ import RenderHTML from "react-native-render-html";
 import useSWR from "swr";
 import { Icon } from "@/components/icon";
 import { Skeleton } from "@/components/skeleton";
-import { lazyMemo, oneMemo, useDash } from "@/dash";
+import { styles, useDash } from "@/dash";
 import { useMetadata } from "@/hooks/use-metadata";
 import { useParents } from "@/hooks/use-parents";
 import type { StackParamList } from "@/screens/routers";
@@ -637,12 +637,12 @@ const Comment = React.memo<{ id: number; index: number; depth: number }>(
   (prev, next) => prev.id === next.id
 );
 
-const container = oneMemo<RN.ViewStyle>((t) => ({
+const container = styles.one<RN.ViewStyle>((t) => ({
   flex: 1,
   backgroundColor: t.color.bodyBg,
 }));
 
-const commentContainer = lazyMemo<number, RN.ViewStyle>((depth) => (t) => ({
+const commentContainer = styles.lazy<number, RN.ViewStyle>((depth) => (t) => ({
   padding: t.space.lg,
   borderTopWidth: t.borderWidth.hairline,
   borderTopColor: t.color.accent,
@@ -655,7 +655,7 @@ const commentContainer = lazyMemo<number, RN.ViewStyle>((depth) => (t) => ({
     : {}),
 }));
 
-const parentCommentContainer = oneMemo<RN.ViewStyle>((t) => ({
+const parentCommentContainer = styles.one<RN.ViewStyle>((t) => ({
   padding: t.space.lg,
   paddingTop: 0,
   marginLeft: t.space.md,
@@ -663,7 +663,7 @@ const parentCommentContainer = oneMemo<RN.ViewStyle>((t) => ({
   borderLeftColor: t.color.primary,
 }));
 
-const parentCommentMarker = oneMemo<RN.ViewStyle>((t) => ({
+const parentCommentMarker = styles.one<RN.ViewStyle>((t) => ({
   position: "absolute",
   left: -5,
   top: 0,
@@ -673,7 +673,7 @@ const parentCommentMarker = oneMemo<RN.ViewStyle>((t) => ({
   backgroundColor: t.color.primary,
 }));
 
-const header = oneMemo<RN.ViewStyle>((t) => ({
+const header = styles.one<RN.ViewStyle>((t) => ({
   flexDirection: "row",
   alignItems: "center",
   width: "100%",
@@ -681,14 +681,14 @@ const header = oneMemo<RN.ViewStyle>((t) => ({
   paddingLeft: t.space.lg,
 }));
 
-const floatingHeader = oneMemo<RN.ViewStyle>((t) => ({
+const floatingHeader = styles.one<RN.ViewStyle>((t) => ({
   position: "absolute",
   left: t.space.lg,
   top: t.space.lg,
   zIndex: 10,
 }));
 
-const backButton = oneMemo<RN.ViewStyle>((t) => ({
+const backButton = styles.one<RN.ViewStyle>((t) => ({
   alignItems: "center",
   justifyContent: "center",
   width: 18 * (t.type.size.base / 16) + t.space.sm * 2,
@@ -698,7 +698,7 @@ const backButton = oneMemo<RN.ViewStyle>((t) => ({
   backgroundColor: t.color.accentLight,
 }));
 
-const title = oneMemo<RN.TextStyle>((t) => ({
+const title = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textPrimary,
   fontSize: t.type.size.xl,
   fontWeight: "900",
@@ -707,7 +707,7 @@ const title = oneMemo<RN.TextStyle>((t) => ({
   paddingBottom: t.space.md,
 }));
 
-const subtitle = oneMemo<RN.TextStyle>((t) => ({
+const subtitle = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textPrimary,
   fontSize: t.type.size.xs,
   fontWeight: "600",
@@ -715,17 +715,17 @@ const subtitle = oneMemo<RN.TextStyle>((t) => ({
   paddingTop: t.space.md,
 }));
 
-const score = oneMemo<RN.TextStyle>((t) => ({
+const score = styles.one<RN.TextStyle>((t) => ({
   color: t.color.primary,
 }));
 
-const storyImage = oneMemo<RN.ImageStyle>((t) => ({
+const storyImage = styles.one<RN.ImageStyle>((t) => ({
   width: "100%",
   height: 240,
   marginBottom: t.space.md,
 }));
 
-const hostContainerStyle = oneMemo<RN.ViewStyle>((t) => ({
+const hostContainerStyle = styles.one<RN.ViewStyle>((t) => ({
   width: "100%",
   flexDirection: "row",
   alignItems: "center",
@@ -735,14 +735,14 @@ const hostContainerStyle = oneMemo<RN.ViewStyle>((t) => ({
   paddingBottom: t.space.md,
 }));
 
-const favicon = oneMemo<RN.ImageStyle>((t) => ({
+const favicon = styles.one<RN.ImageStyle>((t) => ({
   width: 20,
   height: 20,
   borderRadius: t.radius.md,
   marginRight: t.space.sm,
 }));
 
-const hostname = oneMemo<RN.TextStyle>((t) => ({
+const hostname = styles.one<RN.TextStyle>((t) => ({
   flex: 1,
   width: "100%",
   color: t.color.textAccent,
@@ -750,7 +750,7 @@ const hostname = oneMemo<RN.TextStyle>((t) => ({
   fontWeight: "300",
 }));
 
-const content = oneMemo((t) => ({
+const content = styles.one((t) => ({
   color: t.color.textPrimary,
   fontSize: t.type.size.sm,
   fontWeight: "400",
@@ -759,19 +759,19 @@ const content = oneMemo((t) => ({
   paddingBottom: 0,
 }));
 
-const commentStoryContent = oneMemo((t) => ({
+const commentStoryContent = styles.one((t) => ({
   color: t.color.textPrimary,
   fontSize: t.type.size.sm,
   fontWeight: "400",
 }));
 
-const commentContent = oneMemo((t) => ({
+const commentContent = styles.one((t) => ({
   color: t.color.textPrimary,
   fontSize: t.type.size.xs,
   fontWeight: "300",
 }));
 
-const storyByLine = oneMemo<RN.ViewStyle>((t) => ({
+const storyByLine = styles.one<RN.ViewStyle>((t) => ({
   width: "100%",
   flexDirection: "row",
   justifyContent: "space-between",
@@ -786,7 +786,7 @@ const byLine: RN.ViewStyle = {
   justifyContent: "space-between",
 };
 
-const byStyle = oneMemo<RN.TextStyle>((t) => ({
+const byStyle = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   fontSize: t.type.size["2xs"],
   fontWeight: "300",
@@ -795,7 +795,7 @@ const byStyle = oneMemo<RN.TextStyle>((t) => ({
   paddingLeft: 0,
 }));
 
-const replies = oneMemo<RN.TextStyle>((t) => ({
+const replies = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   fontSize: t.type.size["2xs"],
   fontWeight: "300",
@@ -805,20 +805,20 @@ const replies = oneMemo<RN.TextStyle>((t) => ({
   width: "100%",
 }));
 
-const agoStyle = oneMemo<RN.TextStyle>((t) => ({
+const agoStyle = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   fontSize: t.type.size["2xs"],
   fontWeight: "300",
 }));
 
-const link = oneMemo((t) => ({
+const link = styles.one((t) => ({
   color: t.color.textPrimary,
   fontWeight: "600",
   textDecorationLine: "underline",
   textDecorationColor: t.color.primary,
 }));
 
-const pre = oneMemo((t) => ({
+const pre = styles.one((t) => ({
   color: t.color.textPrimary,
   backgroundColor: t.color.accent,
   borderRadius: t.radius.xl,

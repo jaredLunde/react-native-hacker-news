@@ -531,82 +531,11 @@ export const { styles, styled, DashProvider, useDash } = createStyles({
   themes,
 });
 
-export function styledMemo<StyleProps extends {}, Props extends {}>(
-  Component: React.ComponentType<Props>,
-  stylesMemo: StyledCallback<
-    Omit<Props, keyof StyleProps> & StyleProps,
-    "style" extends keyof Props ? Extract<Props["style"], {}> : RNStyles,
-    ValueOf<Omit<typeof styles.tokens, "default">>
-  >,
-  areEqual:
-    | (keyof StyleProps)[]
-    | ((
-        [tokens, props]: [
-          typeof styles.tokens.light | typeof styles.tokens.dark,
-          Omit<Props, keyof StyleProps> & StyleProps
-        ],
-        [nextTokens, nextProps]: [
-          typeof styles.tokens.light | typeof styles.tokens.dark,
-          Omit<Props, keyof StyleProps> & StyleProps
-        ]
-      ) => boolean) = tokensAreEqual
-) {
-  return styled<StyleProps, Props>(
-    Component,
-    memoize(
-      stylesMemo,
-      Array.isArray(areEqual)
-        ? areEqual.length === 1
-          ? // hot path for single-length comparisons
-            ([t, p], [nt, np]) => t === nt && p[areEqual[0]] === np[areEqual[1]]
-          : ([t, p], [nt, np]) =>
-              t === nt && areEqual.every((key) => p[key] === np[key])
-        : areEqual
-    )
-  );
-}
-
 export function tokensAreEqual<Props extends {}>(
   [t]: [AppTokens] | [AppTokens, Props],
   [nt]: [AppTokens] | [AppTokens, Props]
 ) {
   return t === nt;
-}
-
-export function stylesMemo<S extends RNStyles>(
-  styleMap: StyleMap<S, AppTokens>
-) {
-  const memoMap: StyleMap<S, AppTokens> = {};
-
-  for (const key in styleMap) {
-    memoMap[key] =
-      typeof styleMap[key] === "function"
-        ? memoize(styleMap[key] as StyleCallback<S, AppTokens>, tokensAreEqual)
-        : styleMap[key];
-  }
-
-  return styles(memoMap as any);
-}
-
-export function oneMemo<Style extends RNStyles>(
-  callbackStyle: StyleCallback<Style, AppTokens>
-) {
-  return styles.one(memoize(callbackStyle, tokensAreEqual));
-}
-
-export function clsMemo<Style extends RNStyles>(
-  callbackStyle: StyleCallback<Style, AppTokens>
-) {
-  return styles.cls(memoize(callbackStyle, tokensAreEqual));
-}
-
-export function lazyMemo<
-  Value extends JsonValue,
-  Style extends RNStyles = RNStyles
->(lazyStyle: (value: Value) => StyleCallback<Style, AppTokens>) {
-  return styles.lazy((value: Value) =>
-    memoize(lazyStyle(value), tokensAreEqual)
-  );
 }
 
 export type AppTokens = typeof styles.tokens.light | typeof styles.tokens.dark;

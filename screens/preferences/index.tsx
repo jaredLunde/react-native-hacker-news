@@ -7,13 +7,7 @@ import * as Updates from "expo-updates";
 import * as React from "react";
 import * as RN from "react-native";
 import { NavigableHeader } from "@/components/navigable-header";
-import {
-  colorSystem,
-  createTypeSystem,
-  lazyMemo,
-  oneMemo,
-  useDash,
-} from "@/dash";
+import { colorSystem, createTypeSystem, styles, useDash } from "@/dash";
 import type { StackParamList } from "@/screens/routers";
 
 export function Preferences(props: PreferencesProps) {
@@ -260,13 +254,13 @@ export type PreferencesType = {
   baseTypeSize: number;
 };
 
-const container = oneMemo<RN.ViewStyle>((t) => ({
+const container = styles.one<RN.ViewStyle>((t) => ({
   backgroundColor: t.color.bodyBg,
   height: "100%",
   width: "100%",
 }));
 
-const preferencesContainer = oneMemo<RN.ViewStyle>((t) => ({
+const preferencesContainer = styles.one<RN.ViewStyle>((t) => ({
   paddingTop: t.space.lg,
   width: "100%",
 }));
@@ -278,7 +272,7 @@ const sliderContainer: RN.ViewStyle = {
   flexShrink: 1,
 };
 
-const preferenceGroup = oneMemo<RN.ViewStyle>((t) => ({
+const preferenceGroup = styles.one<RN.ViewStyle>((t) => ({
   backgroundColor: t.color.accentLight,
   padding: t.space.lg,
   margin: t.space.lg,
@@ -286,14 +280,14 @@ const preferenceGroup = oneMemo<RN.ViewStyle>((t) => ({
   borderRadius: t.radius.xl,
 }));
 
-const preferenceLabel = oneMemo<RN.TextStyle>((t) => ({
+const preferenceLabel = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textPrimary,
   fontSize: t.type.size.base,
   fontWeight: "700",
   width: "100%",
 }));
 
-const preferenceDescription = oneMemo<RN.TextStyle>((t) => ({
+const preferenceDescription = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   fontSize: t.type.size.xs,
   fontWeight: "400",
@@ -301,14 +295,14 @@ const preferenceDescription = oneMemo<RN.TextStyle>((t) => ({
   marginTop: t.space.sm,
 }));
 
-const preferenceRow = lazyMemo<"center" | "start", RN.ViewStyle>(
+const preferenceRow = styles.lazy<"center" | "start", RN.ViewStyle>(
   (variant) => () => ({
     flexDirection: "row",
     alignItems: variant === "center" ? "center" : "flex-start",
   })
 );
 
-const preferenceLabelContainer = oneMemo<RN.ViewStyle>((t) => ({
+const preferenceLabelContainer = styles.one<RN.ViewStyle>((t) => ({
   flexDirection: "column",
   flexGrow: 1,
   flexShrink: 1,
@@ -317,14 +311,14 @@ const preferenceLabelContainer = oneMemo<RN.ViewStyle>((t) => ({
   marginRight: t.space.lg,
 }));
 
-const colorSwatches = oneMemo<RN.ViewStyle>((t) => ({
+const colorSwatches = styles.one<RN.ViewStyle>((t) => ({
   flexDirection: "row",
   flexWrap: "wrap",
   justifyContent: "space-between",
   marginTop: t.space.lg,
 }));
 
-const colorSwatch = lazyMemo<
+const colorSwatch = styles.lazy<
   { color: string; size: number; selected: boolean },
   RN.ViewStyle
 >(({ color, size, selected }) => (t) => ({
@@ -337,12 +331,12 @@ const colorSwatch = lazyMemo<
   borderRadius: t.radius.primary,
 }));
 
-const resetToDefault = oneMemo<RN.TextStyle>((t) => ({
+const resetToDefault = styles.one<RN.TextStyle>((t) => ({
   color: t.color.primary,
   fontWeight: "500",
 }));
 
-const version = oneMemo<RN.TextStyle>((t) => ({
+const version = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   textAlign: "center",
   marginBottom: t.space["2xl"],

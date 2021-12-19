@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as RN from "react-native";
-import { lazyMemo, useDash } from "@/dash";
+import { styles, useDash } from "@/dash";
 
 export function Skeleton(props: SkeletonProps) {
   useDash();
@@ -36,7 +36,7 @@ export function Skeleton(props: SkeletonProps) {
   );
 }
 
-const skeleton = lazyMemo<SkeletonVariant, RN.ViewStyle>(
+const skeleton = styles.lazy<SkeletonVariant, RN.ViewStyle>(
   (variant = "rect") =>
     (t) => ({
       backgroundColor: t.color.accent,

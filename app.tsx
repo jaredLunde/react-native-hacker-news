@@ -12,7 +12,7 @@ import * as RN from "react-native";
 import { enableScreens } from "react-native-screens";
 import * as Sentry from "sentry-expo";
 import { SWRConfig } from "swr";
-import { DashProvider, lazyMemo, oneMemo, useDash } from "@/dash";
+import { DashProvider, styles, useDash } from "@/dash";
 import { BrowserModal } from "@/screens/browser-modal";
 import { Preferences, usePreferences } from "@/screens/preferences";
 import {
@@ -125,7 +125,7 @@ function Tabs() {
   );
 }
 
-const sceneContainer = oneMemo<RN.ViewStyle>((t) => ({
+const sceneContainer = styles.one<RN.ViewStyle>((t) => ({
   height: "100%",
   width: "100%",
   backgroundColor: t.color.bodyBg,
@@ -195,7 +195,7 @@ function TabBarBase({ state, descriptors, navigation }: BottomTabBarProps) {
   );
 }
 
-const tabBar = oneMemo<RN.ViewStyle>((t) => ({
+const tabBar = styles.one<RN.ViewStyle>((t) => ({
   flexDirection: "row",
   width: "100%",
   backgroundColor: t.color.headerBg,
@@ -203,7 +203,7 @@ const tabBar = oneMemo<RN.ViewStyle>((t) => ({
   borderTopColor: t.color.accent,
 }));
 
-const tabBarLabel = lazyMemo<boolean, RN.TextStyle>((isFocused) => (t) => ({
+const tabBarLabel = styles.lazy<boolean, RN.TextStyle>((isFocused) => (t) => ({
   color: isFocused ? t.color.primary : t.color.textAccent,
   fontSize: t.type.size.sm,
   fontWeight: "700",
@@ -211,7 +211,7 @@ const tabBarLabel = lazyMemo<boolean, RN.TextStyle>((isFocused) => (t) => ({
   textAlign: "center",
 }));
 
-const tabBarTab = lazyMemo<boolean, RN.ViewStyle>((isFocused) => (t) => ({
+const tabBarTab = styles.lazy<boolean, RN.ViewStyle>((isFocused) => (t) => ({
   borderTopColor: isFocused ? t.color.primary : t.color.headerBg,
   borderTopWidth: 4,
   flex: 1,

@@ -10,7 +10,7 @@ import * as RN from "react-native";
 import type { WebViewNavigation } from "react-native-webview";
 import { WebView } from "react-native-webview";
 import { Icon } from "@/components/icon";
-import { oneMemo, responsiveSize, styles, useDash } from "@/dash";
+import { responsiveSize, styles, useDash } from "@/dash";
 import type { StackParamList } from "@/screens/routers";
 
 export function BrowserModal({ navigation, route }: BrowserModalProps) {
@@ -115,14 +115,14 @@ export function BrowserModal({ navigation, route }: BrowserModalProps) {
   );
 }
 
-const container = oneMemo<RN.ViewStyle>((t) => ({
+const container = styles.one<RN.ViewStyle>((t) => ({
   flex: 1,
   alignItems: "center",
   justifyContent: "center",
   backgroundColor: t.color.bodyBg,
 }));
 
-const modalHeader = oneMemo<RN.ViewStyle>((t) => ({
+const modalHeader = styles.one<RN.ViewStyle>((t) => ({
   flexDirection: "row",
   alignItems: "center",
   width: "100%",
@@ -131,7 +131,7 @@ const modalHeader = oneMemo<RN.ViewStyle>((t) => ({
   borderBottomWidth: t.borderWidth.hairline,
 }));
 
-const closeButton = oneMemo<RN.ViewStyle>((t) => ({
+const closeButton = styles.one<RN.ViewStyle>((t) => ({
   alignItems: "center",
   justifyContent: "center",
   width: 18 * (t.type.size.base / 16) + t.space.sm * 2,
@@ -141,7 +141,7 @@ const closeButton = oneMemo<RN.ViewStyle>((t) => ({
   backgroundColor: t.color.accentLight,
 }));
 
-const title = oneMemo<RN.TextStyle>((t) => ({
+const title = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   fontSize: t.type.size["xs"],
   fontWeight: "700",
@@ -153,7 +153,7 @@ const browser = styles.lazy<number, RN.ViewStyle>((width) => ({
   height: "100%",
 }));
 
-const footer = oneMemo<RN.ViewStyle>((t) => ({
+const footer = styles.one<RN.ViewStyle>((t) => ({
   width: "100%",
   flexDirection: "row",
   alignItems: "center",
@@ -162,7 +162,7 @@ const footer = oneMemo<RN.ViewStyle>((t) => ({
   borderTopWidth: t.borderWidth.hairline,
 }));
 
-const footerButton = oneMemo<RN.ViewStyle>((t) => ({
+const footerButton = styles.one<RN.ViewStyle>((t) => ({
   padding: t.space.lg,
   paddingTop: t.space.md,
 }));

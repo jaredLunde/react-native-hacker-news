@@ -5,7 +5,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as React from "react";
 import * as RN from "react-native";
 import { Icon } from "@/components/icon";
-import { lazyMemo, oneMemo, useDash } from "@/dash";
+import { styles, useDash } from "@/dash";
 import type { StackParamList } from "@/screens/routers";
 
 export function NavigableHeader({ title, actions }: NavigableHeaderProps) {
@@ -47,11 +47,11 @@ export function NavigableHeader({ title, actions }: NavigableHeaderProps) {
   );
 }
 
-const headerContainer = oneMemo<RN.ViewStyle>((t) => ({
+const headerContainer = styles.one<RN.ViewStyle>((t) => ({
   backgroundColor: t.color.headerBg,
 }));
 
-const header = oneMemo<RN.ViewStyle>((t) => ({
+const header = styles.one<RN.ViewStyle>((t) => ({
   flexDirection: "row",
   width: "100%",
   justifyContent: "space-between",
@@ -65,7 +65,7 @@ const header = oneMemo<RN.ViewStyle>((t) => ({
   borderBottomColor: t.color.accent,
 }));
 
-const navButton = lazyMemo<"hidden" | "visible", RN.ViewStyle>(
+const navButton = styles.lazy<"hidden" | "visible", RN.ViewStyle>(
   (visibilty) => (t) => ({
     alignItems: "center",
     justifyContent: "center",
@@ -77,7 +77,7 @@ const navButton = lazyMemo<"hidden" | "visible", RN.ViewStyle>(
   })
 );
 
-const titleStyle = oneMemo<RN.TextStyle>((t) => ({
+const titleStyle = styles.one<RN.TextStyle>((t) => ({
   color: t.color.textAccent,
   fontSize: t.type.size.sm,
   fontWeight: "700",

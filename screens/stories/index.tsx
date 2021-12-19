@@ -4,7 +4,7 @@ import * as RN from "react-native";
 import useSWR from "swr";
 import { LogoHeader } from "@/components/logo-header";
 import { StoryCard } from "@/components/story-card";
-import { oneMemo, useDash } from "@/dash";
+import { styles, useDash } from "@/dash";
 import type { StackParamList } from "@/screens/routers";
 
 export function Stories(props: StoriesProps) {
@@ -103,7 +103,7 @@ function renderFlatListItem({ item, index }: { item: number; index: number }) {
   );
 }
 
-const container = oneMemo<RN.ViewStyle>((t) => ({
+const container = styles.one<RN.ViewStyle>((t) => ({
   backgroundColor: t.color.bodyBg,
   height: "100%",
   width: "100%",
